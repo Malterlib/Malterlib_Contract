@@ -12,6 +12,33 @@
 
 #include "Malterlib_Contract.h"
 
+void fg_LogViolation
+(
+	NMib::NStr::CStrNonTracked &_String,
+	const ch8 *_pType, 
+	const ch8 *_pFile, 
+	int32 _Line, 
+	const ch8 *_pFunction, 
+	const ch8 *_pVariables, 
+	const ch8 *_pStatement,
+	bint _bCallstack,
+	const ch8 *_pClassName = 0
+)
+{
+	using namespace NMib::NStr;
+	_String += CStrNonTracked::CFormat("{} violation:" DMibNewLine) << _pType;
+	if (_pStatement) 
+		_String += CStrNonTracked::CFormat("    Statement:{\n}         {}" DMibNewLine) << _pStatement;
+	if (*_pVariables) 
+		_String += CStrNonTracked::CFormat("    Where:{\n}        {}" DMibNewLine) << _pVariables;
+	if (_pClassName) 
+		_String += CStrNonTracked::CFormat("    Class:{\n}        {}" DMibNewLine) << _pClassName;
+
+	_String += CStrNonTracked::CFormat("    Location:{\n}        Function: {}" DMibNewLine) << _pFunction;
+	_String += CStrNonTracked::CFormat("        File: {}" DMibNewLine) << _pFile;
+	_String += CStrNonTracked::CFormat("        Line: {}" DMibNewLine) << _Line;
+}
+
 #ifdef DMibContract_AnyEnabled
 //namespace // internal helper // If you put this in an anonymous namespace it's hard to access from the debugger
 //{
@@ -29,34 +56,6 @@ namespace NMib
 	ch8 g_LastContractStatement[1024] = {0};
 	ch8 g_LastContractDetailed[1024] = {0};
 	bint g_LastContractValid = false;
-
-	void fg_LogViolation
-	(
-		NMib::NStr::CStrNonTracked &_String,
-		const ch8 *_pType, 
-		const ch8 *_pFile, 
-		int32 _Line, 
-		const ch8 *_pFunction, 
-		const ch8 *_pVariables, 
-		const ch8 *_pStatement,
-		bint _bCallstack,
-		const ch8 *_pClassName = 0
-	)
-	{
-		using namespace NMib::NStr;
-		_String += DMibNewLine;
-		_String += CStrNonTracked::CFormat("{} violation:" DMibNewLine) << _pType;
-		if (_pStatement) 
-			_String += CStrNonTracked::CFormat("Statement: {}" DMibNewLine) << _pStatement;
-		if (*_pVariables) 
-			_String += CStrNonTracked::CFormat("Where: {}" DMibNewLine) << _pVariables;
-		if (_pClassName) 
-			_String += CStrNonTracked::CFormat("Class: {}" DMibNewLine) << _pClassName;
-
-		_String += CStrNonTracked::CFormat("Func: {}" DMibNewLine) << _pFunction;
-		_String += CStrNonTracked::CFormat("File: {}" DMibNewLine) << _pFile;
-		_String += CStrNonTracked::CFormat("Line: {}" DMibNewLine) << _Line;
-	}
 
 	inline_never bool fg_FailContract(const ch8 *_pFile, int32 _Line, const ch8 *_pContractType, const ch8 *_pStatement, NMib::NStr::CStrNonTracked const *_pDetailed)
 	{
@@ -195,19 +194,9 @@ namespace NMib
 		NStr::CStrNonTracked CContractViolation::f_ComposeLogMessage() const 
 		{
 			NStr::CStrNonTracked Return;
-			Return += NStr::CStrNonTracked::CFormat("{} violation: " DMibNewLine) << m_pType;
-
-			if (*m_pStatement) 
-				Return += NStr::CStrNonTracked::CFormat("Statement: {}" DMibNewLine) << m_pStatement;
-			if (*m_pVariables) 
-				Return += NStr::CStrNonTracked::CFormat("Where: {}" DMibNewLine) << m_pVariables;
-			if (*m_pClassName) 
-				Return += NStr::CStrNonTracked::CFormat("Class: {}" DMibNewLine) << m_pClassName;
-
-			Return += NStr::CStrNonTracked::CFormat("Func: {}" DMibNewLine) << m_pFunction;
-			Return += NStr::CStrNonTracked::CFormat("File: {}" DMibNewLine) << m_pFile;
-			Return += NStr::CStrNonTracked::CFormat("Line: {}" DMibNewLine) << m_Line;
-			Return += NStr::CStrNonTracked::CFormat("Bug Id: {}" DMibNewLine) << f_BugId();
+			fg_LogViolation(Return, m_pType, m_pFile, m_Line, m_pFunction, m_pVariables, m_pStatement, false, m_pClassName);
+			
+			Return += NStr::CStrNonTracked::CFormat("Bug Id:{\n}    {}{\n}") << f_BugId();
 
 			return Return;
 		}
@@ -276,7 +265,7 @@ namespace NMib
 					(**g_ContratLogger)(CContractViolation("Require",_pFile,_Line,_pFunction,_pVariables,_pStatement,false,""));
 					return false;
 				}
-				NStr::CStrNonTracked String;
+				NStr::CStrNonTracked String = DMibNewLine;
 				fg_LogViolation(String,"Require",_pFile,_Line,_pFunction,_pVariables,_pStatement,_bCallstack);
 				DMibTrace("{}" DMibNewLine, String);
 				return fg_FailContract(_pFile, _Line, "DMibRequire", _pStatement, &String);
@@ -290,7 +279,7 @@ namespace NMib
 					(**g_ContratLogger)(CContractViolation("Ensure",_pFile,_Line,_pFunction,_pVariables,_pStatement,false,""));
 					return false;
 				}
-				NStr::CStrNonTracked String;
+				NStr::CStrNonTracked String = DMibNewLine;
 				fg_LogViolation(String,"Ensure",_pFile,_Line,_pFunction,_pVariables,_pStatement,_bCallstack);
 				DMibTrace("{}" DMibNewLine, String);
 				return fg_FailContract(_pFile, _Line, "DMibEnsure", _pStatement, &String);
@@ -304,7 +293,7 @@ namespace NMib
 					(**g_ContratLogger)(CContractViolation("Check",_pFile,_Line,_pFunction,_pVariables,_pStatement,false,""));
 					return false;
 				}
-				NStr::CStrNonTracked String;
+				NStr::CStrNonTracked String = DMibNewLine;
 				fg_LogViolation(String,"Check",_pFile,_Line,_pFunction,_pVariables,_pStatement,_bCallstack);
 				DMibTrace("{}" DMibNewLine, String);
 				return fg_FailContract(_pFile, _Line, "DMibCheck", _pStatement, &String);
@@ -318,7 +307,7 @@ namespace NMib
 					(**g_ContratLogger)(CContractViolation("Invariant",_pFile,_Line,_pFunction,_pVariables,_pStatement,false,_pClassName));
 					return false;
 				}
-				NStr::CStrNonTracked String;
+				NStr::CStrNonTracked String = DMibNewLine;
 				fg_LogViolation(String,"Invariant",_pFile,_Line,_pFunction,_pVariables,_pStatement,_bCallstack,_pClassName);
 				DMibTrace("{}" DMibNewLine, String);
 				return fg_FailContract(_pFile, _Line, "DMibInvariant", _pStatement, &String);
@@ -332,7 +321,7 @@ namespace NMib
 					(**g_ContratLogger)(CContractViolation("NeverGetHere",_pFile,_Line,_pFunction,_pVariables,"",false,""));
 					return false;
 				}
-				NStr::CStrNonTracked String;
+				NStr::CStrNonTracked String = DMibNewLine;
 				fg_LogViolation(String,"NeverGetHere",_pFile,_Line,_pFunction,_pVariables,0,_bCallstack);
 				DMibTrace("{}" DMibNewLine, String);
 				return fg_FailContract(_pFile, _Line, "DMibNeverGetHere", 0, &String);
