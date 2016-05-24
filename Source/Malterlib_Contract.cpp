@@ -28,7 +28,7 @@ void fg_LogViolation
 	using namespace NMib::NStr;
 	_String += CStrNonTracked::CFormat("{} violation:" DMibNewLine) << _pType;
 	if (_pStatement) 
-		_String += CStrNonTracked::CFormat("    Statement:{\n}         {}" DMibNewLine) << _pStatement;
+		_String += CStrNonTracked::CFormat("    Statement:{\n}        {}" DMibNewLine) << _pStatement;
 	if (*_pVariables) 
 		_String += CStrNonTracked::CFormat("    Where:{\n}        {}" DMibNewLine) << _pVariables;
 	if (_pClassName) 
