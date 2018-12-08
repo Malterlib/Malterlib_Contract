@@ -1,4 +1,4 @@
-﻿//  Copyright (c) 2006-2009 Jonas Persson
+//  Copyright (c) 2006-2009 Jonas Persson
 //
 //  Distributed under the Boost Software License, Version 1.0.
 //  See accompanying file LICENSE_1_0.txt or copy at
@@ -175,356 +175,352 @@ Set a customized handler for contract violations
 
 #include <Mib/Function/Function>
 
-namespace NMib
+namespace NMib::NContract
 {
-	namespace NContract 
+	//--------------------------------------------------------------------
+	// Some helper classes
+	//--------------------------------------------------------------------
+
+	DMibImpErrorClass(CContractException, NException::CDebugException);
+	DMibImpErrorClass(CContractException_Require, CContractException);
+	DMibImpErrorClass(CContractException_Ensure, CContractException);
+	DMibImpErrorClass(CContractException_Check, CContractException);
+	DMibImpErrorClass(CContractException_Invariant, CContractException);
+	DMibImpErrorClass(CContractException_NeverGetHere, CContractException);
+
+	class CContractViolation
 	{
-		//--------------------------------------------------------------------
-		// Some helper classes
-		//--------------------------------------------------------------------
+		const ch8 * m_pType;
+		const ch8 * m_pFile;
+		int32 m_Line;
+		const ch8 * m_pFunction;
+		const ch8 * m_pVariables;
+		const ch8 * m_pStatement;
+		const ch8 * m_pClassName;
+	public:
+		CContractViolation(
+			const ch8 * _pType,
+			const ch8 * _pFile,
+			int32 _Line,
+			const ch8 * _pFunction,
+			const ch8 * _pVariables,
+			const ch8 * _pStatement,
+			bint _bCallstack,
+			const ch8 * _pClassName);
 
-		DMibImpErrorClass(CContractException, NException::CDebugException);
-		DMibImpErrorClass(CContractException_Require, CContractException);
-		DMibImpErrorClass(CContractException_Ensure, CContractException);
-		DMibImpErrorClass(CContractException_Check, CContractException);
-		DMibImpErrorClass(CContractException_Invariant, CContractException);
-		DMibImpErrorClass(CContractException_NeverGetHere, CContractException);
+		NStr::CStrNonTracked f_ComposeLogMessage() const;
+		//std::wstring composeLogMessageWithCallstack() const;
+		uint32 f_BugId() const;
+		//boost::optional<CallStack> const& callStack() const { return callstack_; }
 
-		class CContractViolation
+		const ch8 * f_GetType() const
 		{
-			const ch8 * m_pType; 
-			const ch8 * m_pFile;
+			return m_pType;
+		}
+		const ch8 * f_GetFile() const
+		{
+			return m_pFile;
+		}
+		int32 f_GetLine() const
+		{
+			return m_Line;
+		}
+		const ch8 * f_GetFunction() const
+		{
+			return m_pFunction;
+		}
+		const ch8 * f_GetVariables() const
+		{
+			return m_pVariables;
+		}
+		const ch8 * f_GetStatement() const
+		{
+			return m_pStatement;
+		}
+		const ch8 * f_GetClassName() const
+		{
+			return m_pClassName;
+		}
+	};
+
+	NFunction::TCFunction<void(CContractViolation const&)> fg_SetContractLogger(NFunction::TCFunction<void(CContractViolation const&)> const &_Logger);
+	NFunction::TCFunction<void(CContractViolation const&)> fg_SetContractLoggerThrowExceptions();
+
+	class CContractBreakpointEnablerScope
+	{
+	public:
+
+		CContractBreakpointEnablerScope()
+		{
+			mp_fOldLogger = fg_SetContractLogger(NFunction::TCFunction<void(CContractViolation const&)>(&CContractBreakpointEnablerScope::fsp_DoDebugBreak));
+		}
+
+		~CContractBreakpointEnablerScope()
+		{
+			fg_SetContractLogger(mp_fOldLogger);
+		}
+
+	private:
+
+		NFunction::TCFunction<void(CContractViolation const&)> mp_fOldLogger;	// logger we reinstate at destruction
+		static void fsp_DoDebugBreak(CContractViolation const&)
+		{
+			DMibPDebugBreak;
+		}
+	};
+
+	namespace NPrivate
+	{
+#if defined DMibContract_AnyEnabled
+		// Forward declarations.
+		bool fg_HandleRequireViolation      ( const ch8 *_pFile, int32 _Line, const ch8 *_pFunction, const ch8 *_pVariables, const ch8 *_pStatement, bint _pCallstack);
+		bool fg_HandleEnsureViolation       ( const ch8 *_pFile, int32 _Line, const ch8 *_pFunction, const ch8 *_pVariables, const ch8 *_pStatement, bint _pCallstack);
+		bool fg_HandleCheckViolation        ( const ch8 *_pFile, int32 _Line, const ch8 *_pFunction, const ch8 *_pVariables, const ch8 *_pStatement, bint _pCallstack);
+		bool fg_HandleInvariantViolation    ( const ch8 *_pFile, int32 _Line, const ch8 *_pFunction, const ch8 *_pVariables, const ch8 *_pStatement, const ch8 *_pClassName, bint _pCallstack);
+		bool fg_HandleNeverGetHereViolation ( const ch8 *_pFile, int32 _Line, const ch8 *_pFunction, const ch8 *_pVariables, bint _pCallstack);
+
+		void fg_EnableContractsInThisThread(bool);
+		bool fg_ContractsEnabledInThisThread();
+
+		inline_small bint fg_Check(bint cond)
+		{
+			return cond;
+		}
+		inline_small bool fg_Enabled()
+		{
+			return fg_ContractsEnabledInThisThread();
+		}
+
+		class CContractBase
+		{
+		protected:
+			const ch8 *m_pFile;
 			int32 m_Line;
-			const ch8 * m_pFunction;
-			const ch8 * m_pVariables;
-			const ch8 * m_pStatement;
-			const ch8 * m_pClassName;
-		public: 
-			CContractViolation(
-				const ch8 * _pType,
-				const ch8 * _pFile,
-				int32 _Line,
-				const ch8 * _pFunction,
-				const ch8 * _pVariables,
-				const ch8 * _pStatement,
-				bint _bCallstack,
-				const ch8 * _pClassName);
-
-			NStr::CStrNonTracked f_ComposeLogMessage() const;
-			//std::wstring composeLogMessageWithCallstack() const;
-			uint32 f_BugId() const;
-			//boost::optional<CallStack> const& callStack() const { return callstack_; }
-
-			const ch8 * f_GetType() const
-			{
-				return m_pType;
-			}
-			const ch8 * f_GetFile() const
-			{
-				return m_pFile;
-			}
-			int32 f_GetLine() const
-			{
-				return m_Line;
-			}
-			const ch8 * f_GetFunction() const
-			{
-				return m_pFunction;
-			}
-			const ch8 * f_GetVariables() const
-			{
-				return m_pVariables;
-			}
-			const ch8 * f_GetStatement() const
-			{
-				return m_pStatement;
-			}
-			const ch8 * f_GetClassName() const
-			{
-				return m_pClassName;
-			}
-		};
-
-		NFunction::TCFunction<void(CContractViolation const&)> fg_SetContractLogger(NFunction::TCFunction<void(CContractViolation const&)> const &_Logger);
-		NFunction::TCFunction<void(CContractViolation const&)> fg_SetContractLoggerThrowExceptions();
-
-		class CContractBreakpointEnablerScope
-		{
+			const ch8 *m_pFunction;
+			const ch8 *m_pStatement;
+			mutable NStr::CStrNonTracked m_Variables;
 		public:
-
-			CContractBreakpointEnablerScope()
+			CContractBase(const ch8 *_pFile, int32 _Line, const ch8 *_pFunction, const ch8 *_pStatement)
+				: m_pFile(_pFile)
+				, m_Line(_Line)
+				, m_pFunction(_pFunction)
+				, m_pStatement(_pStatement)
+				, m_Variables()
 			{
-				mp_fOldLogger = fg_SetContractLogger(NFunction::TCFunction<void(CContractViolation const&)>(&CContractBreakpointEnablerScope::fsp_DoDebugBreak));
 			}
 
-			~CContractBreakpointEnablerScope()
+			operator bool() const
 			{
-				fg_SetContractLogger(mp_fOldLogger);
+				return false;
 			}
 
-		private:
-
-			NFunction::TCFunction<void(CContractViolation const&)> mp_fOldLogger;	// logger we reinstate at destruction
-			static void fsp_DoDebugBreak(CContractViolation const&) 
-			{ 
-				DMibPDebugBreak; 
-			}
-		};
-
-		namespace NPrivate 
-		{
-#if defined DMibContract_AnyEnabled
-			// Forward declarations.
-			bool fg_HandleRequireViolation      ( const ch8 *_pFile, int32 _Line, const ch8 *_pFunction, const ch8 *_pVariables, const ch8 *_pStatement, bint _pCallstack);
-			bool fg_HandleEnsureViolation       ( const ch8 *_pFile, int32 _Line, const ch8 *_pFunction, const ch8 *_pVariables, const ch8 *_pStatement, bint _pCallstack);
-			bool fg_HandleCheckViolation        ( const ch8 *_pFile, int32 _Line, const ch8 *_pFunction, const ch8 *_pVariables, const ch8 *_pStatement, bint _pCallstack);
-			bool fg_HandleInvariantViolation    ( const ch8 *_pFile, int32 _Line, const ch8 *_pFunction, const ch8 *_pVariables, const ch8 *_pStatement, const ch8 *_pClassName, bint _pCallstack);
-			bool fg_HandleNeverGetHereViolation ( const ch8 *_pFile, int32 _Line, const ch8 *_pFunction, const ch8 *_pVariables, bint _pCallstack);
-
-			void fg_EnableContractsInThisThread(bool);
-			bool fg_ContractsEnabledInThisThread();
-
-			inline_small bint fg_Check(bint cond) 
-			{ 
-				return cond; 
-			}
-			inline_small bool fg_Enabled() 
-			{ 
-				return fg_ContractsEnabledInThisThread(); 
-			}
-
-			class CContractBase
+			template <typename tf_CVariable>
+			bint f_LogVariable(const ch8 *_Description, tf_CVariable const& _Var) const
 			{
-			protected:
-				const ch8 *m_pFile;
-				int32 m_Line;
-				const ch8 *m_pFunction;
-				const ch8 *m_pStatement;
-				mutable NStr::CStrNonTracked m_Variables;
-			public:
-				CContractBase(const ch8 *_pFile, int32 _Line, const ch8 *_pFunction, const ch8 *_pStatement)
-					: m_pFile(_pFile)
-					, m_Line(_Line)
-					, m_pFunction(_pFunction)
-					, m_pStatement(_pStatement)
-					, m_Variables() 
+				if (_Description[0] == '"')
 				{
-				}
-
-				operator bool() const 
-				{ 
-					return false; 
-				}
-
-				template <typename tf_CVariable> 
-				bint f_LogVariable(const ch8 *_Description, tf_CVariable const& _Var) const 
-				{
-					if (_Description[0] == '"')
-					{
-						if (m_Variables.f_IsEmpty())
-							m_Variables += NStr::CStrNonTracked::CFormat("note: '{}'") << _Var;
-						else
-							m_Variables += NStr::CStrNonTracked::CFormat("{\n}        note: '{}'") << _Var;
-					}
+					if (m_Variables.f_IsEmpty())
+						m_Variables += NStr::CStrNonTracked::CFormat("note: '{}'") << _Var;
 					else
-					{
-						if (m_Variables.f_IsEmpty())
-							m_Variables += NStr::CStrNonTracked::CFormat("{} = {}") << _Description << _Var;
-						else
-							m_Variables += NStr::CStrNonTracked::CFormat("{\n}        {} = {}") << _Description << _Var;
-					}
-					return false;
+						m_Variables += NStr::CStrNonTracked::CFormat("{\n}        note: '{}'") << _Var;
 				}
-			}; // CContractBase -----------------------------------------------------------------
+				else
+				{
+					if (m_Variables.f_IsEmpty())
+						m_Variables += NStr::CStrNonTracked::CFormat("{} = {}") << _Description << _Var;
+					else
+						m_Variables += NStr::CStrNonTracked::CFormat("{\n}        {} = {}") << _Description << _Var;
+				}
+				return false;
+			}
+		}; // CContractBase -----------------------------------------------------------------
 
-			struct CContractRequire : CContractBase 
-			{
-				CContractRequire(const ch8 *_pFile, int32 _Line, const ch8 *_pFunction, const ch8 *_pStatement)
-					: CContractBase(_pFile, _Line, _pFunction, _pStatement)
-				{
-				}
-				bool operator = (bool) const
-				{
-					if (fg_HandleRequireViolation(m_pFile, m_Line, m_pFunction, m_Variables.f_GetStr(), m_pStatement, DMibContractConfigure_Callstack))
-						return true;
-					return false;
-				}
-			}; // DMibRequire --------------------------------------------------------------
-
-			struct CContractEnsure : CContractBase 
-			{
-				CContractEnsure(const ch8 *_pFile, int32 _Line, const ch8 *_pFunction, const ch8 *_pStatement)
-					: CContractBase(_pFile, _Line, _pFunction, _pStatement)
-				{
-				}
-
-				bool operator = (bool) const
-				{
-					if (fg_HandleEnsureViolation(m_pFile, m_Line, m_pFunction, m_Variables.f_GetStr(), m_pStatement, DMibContractConfigure_Callstack))
-						return true;
-					return false;
-				}
-			}; // DMibEnsure ---------------------------------------------------------------
-
-			struct CContractCheck : CContractBase 
-			{
-				CContractCheck(const ch8 *_pFile, int32 _Line, const ch8 *_pFunction, const ch8 *_pStatement)
-					: CContractBase(_pFile, _Line, _pFunction, _pStatement)
-				{
-				}
-
-				bool operator = (bool) const
-				{
-					if (fg_HandleCheckViolation(m_pFile, m_Line, m_pFunction, m_Variables.f_GetStr(), m_pStatement, DMibContractConfigure_Callstack))
-						return true;
-					return false;
-				}
-			}; // DMibCheck ----------------------------------------------------------------
-
-			struct CContractInvariant : CContractBase 
-			{
-				CContractInvariant(const ch8 *_pFile, int32 _Line, const ch8 *_pFunction, const ch8 *_pClassName, const ch8 *_pStatement)
-					: CContractBase(_pFile, _Line, _pFunction, _pStatement)
-				{
-				}
-
-				bool operator = (bool) const
-				{
-					if (fg_HandleInvariantViolation(m_pFile, m_Line, m_pFunction, m_Variables.f_GetStr(), m_pStatement, m_pClass, DMibContractConfigure_Callstack))
-						return true;
-					return false;
-				}
-			private:
-				const ch8 *m_pClass;
-			}; // CContractInvariant ----------------------------------------------------------------
-
-			struct CContractNeverGetHere : CContractBase 
-			{
-				CContractNeverGetHere(const ch8 *_pFile, int32 _Line, const ch8 *_pFunction)
-					: CContractBase(_pFile, _Line, _pFunction, nullptr)
-				{
-				}
-
-				bool operator = (bool) const
-				{
-					if (fg_HandleNeverGetHereViolation(m_pFile, m_Line, m_pFunction, m_Variables.f_GetStr(), DMibContractConfigure_Callstack))
-						return true;
-					return false;
-				}
-			}; // CContractNeverGetHere ---------------------------------------------------------
-
-	#endif
-			// Helper for signalling that no return value will be created from DMibNeverGetHere
-			struct CDisableReturnValue
-			{
-				CDisableReturnValue()
-				{
-				}
-#ifdef DCompiler_MSVC
-				function_does_not_return 
-#endif
-				~CDisableReturnValue()
-				{
-				}
-				operator bool() const 
-				{
-					return false;
-				}
-			};
-		}
-#if defined DMibContractConfigure_InvariantEnabled
-		namespace NPrivate 
+		struct CContractRequire : CContractBase
 		{
-			class CCounter
+			CContractRequire(const ch8 *_pFile, int32 _Line, const ch8 *_pFunction, const ch8 *_pStatement)
+				: CContractBase(_pFile, _Line, _pFunction, _pStatement)
 			{
-			public:
-				CCounter() : m_Counter(0) { }
-				CCounter& operator++() { ++m_Counter; return *this; }
-				CCounter& operator--() { --m_Counter; return *this; }
-				bint operator==(int32 const& rhs) const { return m_Counter==rhs; } 
-			private:
-				int32 m_Counter;
-			};
-			//	class InvariantMgrBase {};
-			template <class t_CClass>
-			class CInvariantManager// : public InvariantMgrBase
+			}
+			bool operator = (bool) const
 			{
-			public:
-				CInvariantManager(t_CClass const& _Client, bint _bCheckAtEntry, const ch8 *_pFile, int32 _Line, const ch8 *_pFunction)
-					: m_Client(_Client)
-					, m_File(_pFile)
-					, m_Line(_Line)
-					, m_pFunction(_pFunction)
-				{
-					++m_Client.f_GetContractCounterInstance();
-					if (m_Client.f_GetContractCounterInstance() == 1 && _bCheckAtEntry)
-						m_Client.f_ContractsCheckInvariants(m_File, m_Line, m_pFunction);
-				}
-				~CInvariantManager()
-				{
-					if (m_Client.f_GetContractCounterInstance() == 1)
-						m_Client.f_ContractsCheckInvariants(m_File, m_Line, m_pFunction);
-					--m_Client.f_GetContractCounterInstance();
-				}
+				if (fg_HandleRequireViolation(m_pFile, m_Line, m_pFunction, m_Variables.f_GetStr(), m_pStatement, DMibContractConfigure_Callstack))
+					return true;
+				return false;
+			}
+		}; // DMibRequire --------------------------------------------------------------
 
-				typedef t_CClass CClient;
-			private:
-				CInvariantManager(const CInvariantManager &);
-				const CInvariantManager& operator=(const CInvariantManager &);
-				CClient const& m_Client;
-				const ch8 *m_File;
-				int32 m_Line;
-				const ch8 *m_pFunction;
-			};
-		}
+		struct CContractEnsure : CContractBase
+		{
+			CContractEnsure(const ch8 *_pFile, int32 _Line, const ch8 *_pFunction, const ch8 *_pStatement)
+				: CContractBase(_pFile, _Line, _pFunction, _pStatement)
+			{
+			}
+
+			bool operator = (bool) const
+			{
+				if (fg_HandleEnsureViolation(m_pFile, m_Line, m_pFunction, m_Variables.f_GetStr(), m_pStatement, DMibContractConfigure_Callstack))
+					return true;
+				return false;
+			}
+		}; // DMibEnsure ---------------------------------------------------------------
+
+		struct CContractCheck : CContractBase
+		{
+			CContractCheck(const ch8 *_pFile, int32 _Line, const ch8 *_pFunction, const ch8 *_pStatement)
+				: CContractBase(_pFile, _Line, _pFunction, _pStatement)
+			{
+			}
+
+			bool operator = (bool) const
+			{
+				if (fg_HandleCheckViolation(m_pFile, m_Line, m_pFunction, m_Variables.f_GetStr(), m_pStatement, DMibContractConfigure_Callstack))
+					return true;
+				return false;
+			}
+		}; // DMibCheck ----------------------------------------------------------------
+
+		struct CContractInvariant : CContractBase
+		{
+			CContractInvariant(const ch8 *_pFile, int32 _Line, const ch8 *_pFunction, const ch8 *_pClassName, const ch8 *_pStatement)
+				: CContractBase(_pFile, _Line, _pFunction, _pStatement)
+			{
+			}
+
+			bool operator = (bool) const
+			{
+				if (fg_HandleInvariantViolation(m_pFile, m_Line, m_pFunction, m_Variables.f_GetStr(), m_pStatement, m_pClass, DMibContractConfigure_Callstack))
+					return true;
+				return false;
+			}
+		private:
+			const ch8 *m_pClass;
+		}; // CContractInvariant ----------------------------------------------------------------
+
+		struct CContractNeverGetHere : CContractBase
+		{
+			CContractNeverGetHere(const ch8 *_pFile, int32 _Line, const ch8 *_pFunction)
+				: CContractBase(_pFile, _Line, _pFunction, nullptr)
+			{
+			}
+
+			bool operator = (bool) const
+			{
+				if (fg_HandleNeverGetHereViolation(m_pFile, m_Line, m_pFunction, m_Variables.f_GetStr(), DMibContractConfigure_Callstack))
+					return true;
+				return false;
+			}
+		}; // CContractNeverGetHere ---------------------------------------------------------
+
 #endif
-		class CEnableContracts
+		// Helper for signalling that no return value will be created from DMibNeverGetHere
+		struct CDisableReturnValue
+		{
+			CDisableReturnValue()
+			{
+			}
+#ifdef DCompiler_MSVC
+			function_does_not_return
+#endif
+			~CDisableReturnValue()
+			{
+			}
+			operator bool() const
+			{
+				return false;
+			}
+		};
+	}
+#if defined DMibContractConfigure_InvariantEnabled
+	namespace NPrivate
+	{
+		class CCounter
 		{
 		public:
-			CEnableContracts(bool);
-			~CEnableContracts();
+			CCounter() : m_Counter(0) { }
+			CCounter& operator++() { ++m_Counter; return *this; }
+			CCounter& operator--() { --m_Counter; return *this; }
+			bint operator==(int32 const& rhs) const { return m_Counter==rhs; }
 		private:
-			CEnableContracts(CEnableContracts const&);
-			CEnableContracts& operator=(CEnableContracts const&);
-			bool m_Old;
+			int32 m_Counter;
 		};
-#if defined DMibContract_AnyEnabled
-		inline CEnableContracts::CEnableContracts(bool enable) 
-			: m_Old(NPrivate::fg_ContractsEnabledInThisThread())
+		//	class InvariantMgrBase {};
+		template <class t_CClass>
+		class CInvariantManager// : public InvariantMgrBase
 		{
-			NPrivate::fg_EnableContractsInThisThread(enable);
-		}
-		inline CEnableContracts::~CEnableContracts() 
-		{
-			NPrivate::fg_EnableContractsInThisThread(m_Old);
-		}
+		public:
+			CInvariantManager(t_CClass const& _Client, bint _bCheckAtEntry, const ch8 *_pFile, int32 _Line, const ch8 *_pFunction)
+				: m_Client(_Client)
+				, m_File(_pFile)
+				, m_Line(_Line)
+				, m_pFunction(_pFunction)
+			{
+				++m_Client.f_GetContractCounterInstance();
+				if (m_Client.f_GetContractCounterInstance() == 1 && _bCheckAtEntry)
+					m_Client.f_ContractsCheckInvariants(m_File, m_Line, m_pFunction);
+			}
+			~CInvariantManager()
+			{
+				if (m_Client.f_GetContractCounterInstance() == 1)
+					m_Client.f_ContractsCheckInvariants(m_File, m_Line, m_pFunction);
+				--m_Client.f_GetContractCounterInstance();
+			}
 
-		NStr::CStrNonTracked fg_GetLastContractMessage();
+			typedef t_CClass CClient;
+		private:
+			CInvariantManager(const CInvariantManager &);
+			const CInvariantManager& operator=(const CInvariantManager &);
+			CClient const& m_Client;
+			const ch8 *m_File;
+			int32 m_Line;
+			const ch8 *m_pFunction;
+		};
+	}
+#endif
+	class CEnableContracts
+	{
+	public:
+		CEnableContracts(bool);
+		~CEnableContracts();
+	private:
+		CEnableContracts(CEnableContracts const&);
+		CEnableContracts& operator=(CEnableContracts const&);
+		bool m_Old;
+	};
+#if defined DMibContract_AnyEnabled
+	inline CEnableContracts::CEnableContracts(bool enable)
+		: m_Old(NPrivate::fg_ContractsEnabledInThisThread())
+	{
+		NPrivate::fg_EnableContractsInThisThread(enable);
+	}
+	inline CEnableContracts::~CEnableContracts()
+	{
+		NPrivate::fg_EnableContractsInThisThread(m_Old);
+	}
+
+	NStr::CStrNonTracked fg_GetLastContractMessage();
 #else
-		inline CEnableContracts::CEnableContracts(bool enable) 
-			: m_Old(false)
-		{
-		}
-		inline CEnableContracts::~CEnableContracts() 
-		{
-		}
+	inline CEnableContracts::CEnableContracts(bool enable)
+		: m_Old(false)
+	{
+	}
+	inline CEnableContracts::~CEnableContracts()
+	{
+	}
 #endif
 
 #ifdef DMibContract_AnyEnabled
-		struct CContractBreak
+	struct CContractBreak
+	{
+		inline_always void operator = (bool _bBreak)
 		{
-			inline_always void operator = (bool _bBreak)
-			{
-				if (_bBreak)
-					DMibPDebugBreak;
-			}
-		};
-		extern CContractBreak g_ContractBreak;
-		// struct CBreak{inline_always CBreak(bool _bBreak){if(_bBreak)DMibPDebugBreak;}} Break
+			if (_bBreak)
+				DMibPDebugBreak;
+		}
+	};
+	extern CContractBreak g_ContractBreak;
+	// struct CBreak{inline_always CBreak(bool _bBreak){if(_bBreak)DMibPDebugBreak;}} Break
 #endif
-	}
 }
-
 
 #if defined DMibContract_AnyEnabled
 #define DMibContractRecursive
@@ -733,18 +729,19 @@ enum {DMibContractHelperInvariantExpression_A, DMibContractHelperInvariantExpres
 
 
 #ifndef DMibPNoShortCuts
-#  define DValidateInvariant DMibValidateInvariant
-#  define DClassInvariants DMibClassInvariants
-#  define DBaseInvariants DMibBaseInvariant
-#  define DInvariant      DMibInvariant
-#  define DCheck          DMibCheck
-#  define DEnsure         DMibEnsure
-#  define DRequire        DMibRequire
-#  define DNeverGetHere   DMibNeverGetHere
-#  define DOld            DMibContractOld
-#  define DOldDef         DMibContractOldDef
-#  define DOldExpr        DMibContractOldExpr
-#  define DHandlingToDo   DMibErrorHandlingToDo
-#  define DBreakEnablerScope DMibContractBreakEnablerScope
+	using namespace NMib::NContract;
+#	define DValidateInvariant DMibValidateInvariant
+#	define DClassInvariants DMibClassInvariants
+#	define DBaseInvariants DMibBaseInvariant
+#	define DInvariant      DMibInvariant
+#	define DCheck          DMibCheck
+#	define DEnsure         DMibEnsure
+#	define DRequire        DMibRequire
+#	define DNeverGetHere   DMibNeverGetHere
+#	define DOld            DMibContractOld
+#	define DOldDef         DMibContractOldDef
+#	define DOldExpr        DMibContractOldExpr
+#	define DHandlingToDo   DMibErrorHandlingToDo
+#	define DBreakEnablerScope DMibContractBreakEnablerScope
 #endif
 
