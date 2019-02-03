@@ -12,6 +12,16 @@
 
 #include "Malterlib_Contract.h"
 
+namespace NMib::NContract
+{
+	DMibImpErrorClassImplement(CContractException);
+	DMibImpErrorClassImplement(CContractException_Require);
+	DMibImpErrorClassImplement(CContractException_Ensure);
+	DMibImpErrorClassImplement(CContractException_Check);
+	DMibImpErrorClassImplement(CContractException_Invariant);
+	DMibImpErrorClassImplement(CContractException_NeverGetHere);
+}
+
 void fg_LogViolation
 (
 	NMib::NStr::CStrNonTracked &_String,
