@@ -16,7 +16,10 @@ namespace NMib::NContract
 {
 #if DMibEnableSafeCheck > 0
 
-	NStorage::TCAggregate<NThread::TCThreadLocal<TCAutoClearInt<bint>, NMemory::CAllocator_NonTrackedHeap>, 64> g_SafeCheckThrowsException = {DAggregateInit};
+	NStorage::TCAggregate<NThread::TCThreadLocal<TCAutoClearInt<bint>, NMemory::CAllocator_NonTrackedHeap, NThread::EThreadLocalFlag_Inherit>, 64> g_SafeCheckThrowsException
+		= {DAggregateInit}
+	;
+	
 	bint fg_MibSafeCheckSetThrowsException(bint _bThrowsException)
 	{
 		bint bOld = *(*g_SafeCheckThrowsException);
