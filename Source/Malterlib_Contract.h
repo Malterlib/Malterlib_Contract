@@ -252,17 +252,16 @@ namespace NMib::NContract
 
 		CContractBreakpointEnablerScope()
 		{
-			DMibThreadLocalScopeEnter;
 			mp_fOldLogger = fg_SetContractLogger(NFunction::TCFunction<void(CContractViolation const&)>(&CContractBreakpointEnablerScope::fsp_DoDebugBreak));
 		}
 
 		~CContractBreakpointEnablerScope()
 		{
 			fg_SetContractLogger(mp_fOldLogger);
-			DMibThreadLocalScopeExit;
 		}
 
 	private:
+		DMibThreadLocalScopeDebugMember;
 
 		NFunction::TCFunction<void(CContractViolation const&)> mp_fOldLogger;	// logger we reinstate at destruction
 		static void fsp_DoDebugBreak(CContractViolation const&)
