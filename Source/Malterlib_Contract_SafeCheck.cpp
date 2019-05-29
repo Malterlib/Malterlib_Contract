@@ -8,7 +8,7 @@ int32 g_LastSafeCheckLine = 0;
 ch8 g_LastSafeCheckFile[1024] = {0};
 ch8 g_LastSafeCheckExpression[1024] = {0};
 ch8 g_LastSafeCheckMessage[1024] = {0};
-bint g_LastSafeCheckValid = false;
+bool g_LastSafeCheckValid = false;
 
 #endif
 
@@ -16,13 +16,13 @@ namespace NMib::NContract
 {
 #if DMibEnableSafeCheck > 0
 
-	NStorage::TCAggregate<NThread::TCThreadLocal<TCAutoClearInt<bint>, NMemory::CAllocator_NonTrackedHeap, NThread::EThreadLocalFlag_Inherit>, 64> g_SafeCheckThrowsException
+	NStorage::TCAggregate<NThread::TCThreadLocal<TCAutoClearInt<bool>, NMemory::CAllocator_NonTrackedHeap, NThread::EThreadLocalFlag_Inherit>, 64> g_SafeCheckThrowsException
 		= {DAggregateInit}
 	;
 	
-	bint fg_MibSafeCheckSetThrowsException(bint _bThrowsException)
+	bool fg_MibSafeCheckSetThrowsException(bool _bThrowsException)
 	{
-		bint bOld = *(*g_SafeCheckThrowsException);
+		bool bOld = *(*g_SafeCheckThrowsException);
 		*(*g_SafeCheckThrowsException) = _bThrowsException;
 		return bOld;
 	}
@@ -39,7 +39,7 @@ namespace NMib::NContract
 		return NStr::CStrNonTracked();
 	}
 
-	inline_never bint fg_MibSafeCheck(const ch8 *_pFile, int32 _Line, const ch8 *_pExpression, const ch8 *_pMessage)
+	inline_never bool fg_MibSafeCheck(const ch8 *_pFile, int32 _Line, const ch8 *_pExpression, const ch8 *_pMessage)
 	{
 		if (!g_SafeCheckThrowsException.f_WasDestructed() && *(*g_SafeCheckThrowsException))
 		{

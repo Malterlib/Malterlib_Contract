@@ -31,7 +31,7 @@ void fg_LogViolation
 	const ch8 *_pFunction, 
 	const ch8 *_pVariables, 
 	const ch8 *_pStatement,
-	bint _bCallstack,
+	bool _bCallstack,
 	const ch8 *_pClassName = 0
 )
 {
@@ -62,7 +62,7 @@ ch8 g_LastContractFile[1024] = {0};
 ch8 g_LastContractType[1024] = {0};
 ch8 g_LastContractStatement[1024] = {0};
 ch8 g_LastContractDetailed[1024] = {0};
-bint g_LastContractValid = false;
+bool g_LastContractValid = false;
 
 inline_never bool fg_FailContract(const ch8 *_pFile, int32 _Line, const ch8 *_pContractType, const ch8 *_pStatement, NMib::NStr::CStrNonTracked const *_pDetailed)
 {
@@ -180,7 +180,7 @@ namespace NMib::NContract
 		const ch8 * _pFunction,
 		const ch8 * _pVariables,
 		const ch8 * _pStatement,
-		bint _bCallstack,
+		bool _bCallstack,
 		const ch8 * _pClassName
 	)
 		: m_pType(_pType)
@@ -267,7 +267,7 @@ namespace NMib::NContract
 	namespace NPrivate
 	{
 #ifdef DMibContractConfigure_RequireEnabled
-		bool fg_HandleRequireViolation(const ch8 *_pFile, int32 _Line, const ch8 *_pFunction, const ch8 *_pVariables, const ch8 *_pStatement,bint _bCallstack)
+		bool fg_HandleRequireViolation(const ch8 *_pFile, int32 _Line, const ch8 *_pFunction, const ch8 *_pVariables, const ch8 *_pStatement,bool _bCallstack)
 		{
 			if (!g_ContratLogger.f_WasDestructed() && !!(**g_ContratLogger))
 			{
@@ -281,7 +281,7 @@ namespace NMib::NContract
 		}
 #endif
 #ifdef DMibContractConfigure_EnsureEnabled
-		bool fg_HandleEnsureViolation(const ch8 *_pFile, int32 _Line, const ch8 *_pFunction, const ch8 *_pVariables, const ch8 *_pStatement,bint _bCallstack)
+		bool fg_HandleEnsureViolation(const ch8 *_pFile, int32 _Line, const ch8 *_pFunction, const ch8 *_pVariables, const ch8 *_pStatement,bool _bCallstack)
 		{
 			if (!g_ContratLogger.f_WasDestructed() && !!(**g_ContratLogger))
 			{
@@ -295,7 +295,7 @@ namespace NMib::NContract
 		}
 #endif
 #ifdef DMibContractConfigure_CheckEnabled
-		bool fg_HandleCheckViolation(const ch8 *_pFile, int32 _Line, const ch8 *_pFunction, const ch8 *_pVariables, const ch8 *_pStatement,bint _bCallstack)
+		bool fg_HandleCheckViolation(const ch8 *_pFile, int32 _Line, const ch8 *_pFunction, const ch8 *_pVariables, const ch8 *_pStatement,bool _bCallstack)
 		{
 			if (!g_ContratLogger.f_WasDestructed() && !!(**g_ContratLogger))
 			{
@@ -309,7 +309,7 @@ namespace NMib::NContract
 		}
 #endif
 #ifdef DMibContractConfigure_InvariantEnabled
-		bool fg_HandleInvariantViolation(const ch8 *_pFile, int32 _Line, const ch8 *_pFunction, const ch8 *_pVariables, const ch8 *_pStatement,const ch8 *_pClassName,bint _bCallstack)
+		bool fg_HandleInvariantViolation(const ch8 *_pFile, int32 _Line, const ch8 *_pFunction, const ch8 *_pVariables, const ch8 *_pStatement,const ch8 *_pClassName,bool _bCallstack)
 		{
 			if (!g_ContratLogger.f_WasDestructed() && !!(**g_ContratLogger))
 			{
@@ -323,7 +323,7 @@ namespace NMib::NContract
 		}
 #endif
 #ifdef DMibContractConfigure_NeverGetHereEnabled
-		bool fg_HandleNeverGetHereViolation(const ch8 *_pFile, int32 _Line, const ch8 *_pFunction, const ch8 *_pVariables,bint _bCallstack)
+		bool fg_HandleNeverGetHereViolation(const ch8 *_pFile, int32 _Line, const ch8 *_pFunction, const ch8 *_pVariables,bool _bCallstack)
 		{
 			if (!g_ContratLogger.f_WasDestructed() && !!(**g_ContratLogger))
 			{

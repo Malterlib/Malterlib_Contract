@@ -205,7 +205,7 @@ namespace NMib::NContract
 			const ch8 * _pFunction,
 			const ch8 * _pVariables,
 			const ch8 * _pStatement,
-			bint _bCallstack,
+			bool _bCallstack,
 			const ch8 * _pClassName);
 
 		NStr::CStrNonTracked f_ComposeLogMessage() const;
@@ -274,16 +274,16 @@ namespace NMib::NContract
 	{
 #if defined DMibContract_AnyEnabled
 		// Forward declarations.
-		bool fg_HandleRequireViolation      ( const ch8 *_pFile, int32 _Line, const ch8 *_pFunction, const ch8 *_pVariables, const ch8 *_pStatement, bint _pCallstack);
-		bool fg_HandleEnsureViolation       ( const ch8 *_pFile, int32 _Line, const ch8 *_pFunction, const ch8 *_pVariables, const ch8 *_pStatement, bint _pCallstack);
-		bool fg_HandleCheckViolation        ( const ch8 *_pFile, int32 _Line, const ch8 *_pFunction, const ch8 *_pVariables, const ch8 *_pStatement, bint _pCallstack);
-		bool fg_HandleInvariantViolation    ( const ch8 *_pFile, int32 _Line, const ch8 *_pFunction, const ch8 *_pVariables, const ch8 *_pStatement, const ch8 *_pClassName, bint _pCallstack);
-		bool fg_HandleNeverGetHereViolation ( const ch8 *_pFile, int32 _Line, const ch8 *_pFunction, const ch8 *_pVariables, bint _pCallstack);
+		bool fg_HandleRequireViolation      ( const ch8 *_pFile, int32 _Line, const ch8 *_pFunction, const ch8 *_pVariables, const ch8 *_pStatement, bool _pCallstack);
+		bool fg_HandleEnsureViolation       ( const ch8 *_pFile, int32 _Line, const ch8 *_pFunction, const ch8 *_pVariables, const ch8 *_pStatement, bool _pCallstack);
+		bool fg_HandleCheckViolation        ( const ch8 *_pFile, int32 _Line, const ch8 *_pFunction, const ch8 *_pVariables, const ch8 *_pStatement, bool _pCallstack);
+		bool fg_HandleInvariantViolation    ( const ch8 *_pFile, int32 _Line, const ch8 *_pFunction, const ch8 *_pVariables, const ch8 *_pStatement, const ch8 *_pClassName, bool _pCallstack);
+		bool fg_HandleNeverGetHereViolation ( const ch8 *_pFile, int32 _Line, const ch8 *_pFunction, const ch8 *_pVariables, bool _pCallstack);
 
 		void fg_EnableContractsInThisThread(bool);
 		bool fg_ContractsEnabledInThisThread();
 
-		inline_small bint fg_Check(bint cond)
+		inline_small bool fg_Check(bool cond)
 		{
 			return cond;
 		}
@@ -316,7 +316,7 @@ namespace NMib::NContract
 			}
 
 			template <typename tf_CVariable>
-			bint f_LogVariable(const ch8 *_Description, tf_CVariable const& _Var) const
+			bool f_LogVariable(const ch8 *_Description, tf_CVariable const& _Var) const
 			{
 				if (_Description[0] == '"')
 				{
@@ -440,7 +440,7 @@ namespace NMib::NContract
 			CCounter() : m_Counter(0) { }
 			CCounter& operator++() { ++m_Counter; return *this; }
 			CCounter& operator--() { --m_Counter; return *this; }
-			bint operator==(int32 const& rhs) const { return m_Counter==rhs; }
+			bool operator==(int32 const& rhs) const { return m_Counter==rhs; }
 		private:
 			int32 m_Counter;
 		};
@@ -449,7 +449,7 @@ namespace NMib::NContract
 		class CInvariantManager// : public InvariantMgrBase
 		{
 		public:
-			CInvariantManager(t_CClass const& _Client, bint _bCheckAtEntry, const ch8 *_pFile, int32 _Line, const ch8 *_pFunction)
+			CInvariantManager(t_CClass const& _Client, bool _bCheckAtEntry, const ch8 *_pFile, int32 _Line, const ch8 *_pFunction)
 				: m_Client(_Client)
 				, m_File(_pFile)
 				, m_Line(_Line)
