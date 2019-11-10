@@ -3,7 +3,7 @@
 
 #if DMibEnableSafeCheck > 0
 
-NMib::NThread::CSpinLockAggregate g_LastSafeCheckLock = {DAggregateInit};
+constinit NMib::NThread::CSpinLockAggregate g_LastSafeCheckLock = {DAggregateInit};
 int32 g_LastSafeCheckLine = 0;
 ch8 g_LastSafeCheckFile[1024] = {0};
 ch8 g_LastSafeCheckExpression[1024] = {0};
@@ -16,7 +16,7 @@ namespace NMib::NContract
 {
 #if DMibEnableSafeCheck > 0
 
-	NStorage::TCAggregate<NThread::TCThreadLocal<TCAutoClearInt<bool>, NMemory::CAllocator_NonTrackedHeap, NThread::EThreadLocalFlag_Inherit>, 64> g_SafeCheckThrowsException
+	constinit NStorage::TCAggregate<NThread::TCThreadLocal<TCAutoClearInt<bool>, NMemory::CAllocator_NonTrackedHeap, NThread::EThreadLocalFlag_Inherit>, 64> g_SafeCheckThrowsException
 		= {DAggregateInit}
 	;
 	

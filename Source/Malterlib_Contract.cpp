@@ -56,7 +56,7 @@ namespace NMib::NContract
 	NStr::CStrNonTracked fg_GetLastContractMessageLockHeld();
 }
 
-NMib::NThread::CSpinLockAggregate g_LastContractLock = {DAggregateInit};
+constinit NMib::NThread::CSpinLockAggregate g_LastContractLock = {DAggregateInit};
 int32 g_LastContractLine = 0;
 ch8 g_LastContractFile[1024] = {0};
 ch8 g_LastContractType[1024] = {0};
@@ -154,7 +154,7 @@ namespace NMib::NContract
 
 	namespace NPrivate
 	{
-		NStorage::TCAggregate<NThread::TCThreadLocal<TCAutoClearInt<bool,true>>, 64> g_Enabled = {DAggregateInit};
+		constinit NStorage::TCAggregate<NThread::TCThreadLocal<TCAutoClearInt<bool,true>>, 64> g_Enabled = {DAggregateInit};
 		bool g_bGlobalEnabled = true;
 
 		void fg_EnableContractsInThisThread(bool enabled)
@@ -209,7 +209,7 @@ namespace NMib::NContract
 
 	namespace
 	{
-		NStorage::TCAggregate
+		constinit NStorage::TCAggregate
 			<
 				NMib::NThread::TCThreadLocal<NFunction::TCFunction<void(CContractViolation const&)>, NMib::NMemory::CAllocator_Heap, NMib::NThread::EThreadLocalFlag_Inherit>
 			>
