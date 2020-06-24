@@ -235,14 +235,14 @@ namespace NMib::NContract
 					if (*_ContractViolation.f_GetClassName())
 					{
 						if (*_ContractViolation.f_GetVariables())
-							Message = CStrNonTracked::CFormat("{} in {} where {}") << _ContractViolation.f_GetStatement() << _ContractViolation.f_GetClassName() << _ContractViolation.f_GetVariables();
+							Message = CStrNonTracked::CFormat("{} in {} where:{}") << _ContractViolation.f_GetStatement() << _ContractViolation.f_GetClassName() << _ContractViolation.f_GetVariables();
 						else
 							Message = CStrNonTracked::CFormat("{} in {}") << _ContractViolation.f_GetStatement() << _ContractViolation.f_GetClassName();
 					}
 					else
 					{
 						if (*_ContractViolation.f_GetVariables())
-							Message = CStrNonTracked::CFormat("{} where {}") << _ContractViolation.f_GetStatement() << _ContractViolation.f_GetVariables();
+							Message = CStrNonTracked::CFormat("{} where:{}") << _ContractViolation.f_GetStatement() << _ContractViolation.f_GetVariables();
 						else
 							Message = CStrNonTracked::CFormat("{}") << _ContractViolation.f_GetStatement();
 					}
