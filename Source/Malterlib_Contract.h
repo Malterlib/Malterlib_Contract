@@ -319,19 +319,9 @@ namespace NMib::NContract
 			bool f_LogVariable(const ch8 *_Description, tf_CVariable const& _Var) const
 			{
 				if (_Description[0] == '"')
-				{
-					if (m_Variables.f_IsEmpty())
-						m_Variables += NStr::CStrNonTracked::CFormat("note: '{}'") << _Var;
-					else
-						m_Variables += NStr::CStrNonTracked::CFormat("{\n}        note: '{}'") << _Var;
-				}
+					m_Variables += NStr::CStrNonTracked::CFormat("{\n}    note: '{}'") << _Var;
 				else
-				{
-					if (m_Variables.f_IsEmpty())
-						m_Variables += NStr::CStrNonTracked::CFormat("{} = {}") << _Description << _Var;
-					else
-						m_Variables += NStr::CStrNonTracked::CFormat("{\n}        {} = {}") << _Description << _Var;
-				}
+					m_Variables += NStr::CStrNonTracked::CFormat("{\n}    {} = {}") << _Description << _Var;
 				return false;
 			}
 		}; // CContractBase -----------------------------------------------------------------
