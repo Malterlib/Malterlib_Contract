@@ -3,7 +3,7 @@
 
 #if DMibEnableSafeCheck > 0
 
-constinit NMib::NThread::CSpinLockAggregate g_LastSafeCheckLock = {DAggregateInit};
+constinit NMib::NThread::CLowLevelLockAggregate g_LastSafeCheckLock = {DAggregateInit};
 int32 g_LastSafeCheckLine = 0;
 ch8 g_LastSafeCheckFile[1024] = {0};
 ch8 g_LastSafeCheckExpression[1024] = {0};
@@ -16,14 +16,29 @@ namespace NMib::NContract
 {
 #if DMibEnableSafeCheck > 0
 
-	constinit NStorage::TCAggregate<NThread::TCThreadLocal<TCAutoClearInt<bool>, NMemory::CAllocator_NonTrackedHeap, NThread::EThreadLocalFlag_Inherit>, 64> g_SafeCheckThrowsException
-		= {DAggregateInit}
+	namespace
+	{
+		struct CSafeCheckThrowsExcetionThreadLocal
+		{
+			CSafeCheckThrowsExcetionThreadLocal() = default;
+			CSafeCheckThrowsExcetionThreadLocal(CSafeCheckThrowsExcetionThreadLocal const &_Other)
+				: m_bThrowsException(_Other.m_bThrowsException.f_Load())
+			{
+			}
+
+			NAtomic::TCAtomic<bool> m_bThrowsException;
+		};
+	}
+
+	constinit NStorage::TCAggregate<NThread::TCThreadLocal<CSafeCheckThrowsExcetionThreadLocal, NMemory::CAllocator_NonTrackedHeap, NThread::EThreadLocalFlag_Inherit>, 64>
+		g_SafeCheckThrowsException = {DAggregateInit}
 	;
 	
 	bool fg_MibSafeCheckSetThrowsException(bool _bThrowsException)
 	{
-		bool bOld = *(*g_SafeCheckThrowsException);
-		*(*g_SafeCheckThrowsException) = _bThrowsException;
+		auto &ThreadLocal = **g_SafeCheckThrowsException;
+		bool bOld = ThreadLocal.m_bThrowsException.f_Load();
+		ThreadLocal.m_bThrowsException = _bThrowsException;
 		return bOld;
 	}
 
@@ -41,7 +56,7 @@ namespace NMib::NContract
 
 	inline_never bool fg_MibSafeCheck(const ch8 *_pFile, int32 _Line, const ch8 *_pExpression, const ch8 *_pMessage)
 	{
-		if (!g_SafeCheckThrowsException.f_WasDestructed() && *(*g_SafeCheckThrowsException))
+		if (!g_SafeCheckThrowsException.f_WasDestructed() && (**g_SafeCheckThrowsException).m_bThrowsException.f_Load(NAtomic::EMemoryOrder_Relaxed))
 		{
 			NStr::CStrNonTracked Message;
 			if (*_pMessage)
