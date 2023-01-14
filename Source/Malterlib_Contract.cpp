@@ -14,12 +14,14 @@
 
 namespace NMib::NContract
 {
+#if defined DMibContract_AnyEnabled
 	DMibImpErrorClassImplement(CContractException);
 	DMibImpErrorClassImplement(CContractException_Require);
 	DMibImpErrorClassImplement(CContractException_Ensure);
 	DMibImpErrorClassImplement(CContractException_Check);
 	DMibImpErrorClassImplement(CContractException_Invariant);
 	DMibImpErrorClassImplement(CContractException_NeverGetHere);
+#endif
 }
 
 void fg_LogViolation
@@ -239,6 +241,7 @@ namespace NMib::NContract
 		return OldLogger;
 	}
 
+#if defined DMibContract_AnyEnabled
 	NFunction::TCFunction<void(CContractViolation const&)> fg_SetContractLoggerThrowExceptions()
 	{
 		using namespace NMib::NStr;
@@ -278,11 +281,11 @@ namespace NMib::NContract
 			)
 		;
 	}
-
+#endif
 
 	namespace NPrivate
 	{
-#ifdef DMibContractConfigure_RequireEnabled
+#if defined DMibContract_AnyEnabled
 		bool fg_HandleRequireViolation(const ch8 *_pFile, int32 _Line, const ch8 *_pFunction, const ch8 *_pVariables, const ch8 *_pStatement,bool _bCallstack)
 		{
 			if (!g_ContratLogger.f_WasDestructed() && !!(**g_ContratLogger).m_fOnContractViolation)

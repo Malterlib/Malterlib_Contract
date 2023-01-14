@@ -181,12 +181,14 @@ namespace NMib::NContract
 	// Some helper classes
 	//--------------------------------------------------------------------
 
+#if defined DMibContract_AnyEnabled
 	DMibImpErrorClassDefine(CContractException, NException::CDebugException);
 	DMibImpErrorClassDefine(CContractException_Require, CContractException);
 	DMibImpErrorClassDefine(CContractException_Ensure, CContractException);
 	DMibImpErrorClassDefine(CContractException_Check, CContractException);
 	DMibImpErrorClassDefine(CContractException_Invariant, CContractException);
 	DMibImpErrorClassDefine(CContractException_NeverGetHere, CContractException);
+#endif
 
 	class CContractViolation
 	{
@@ -244,7 +246,9 @@ namespace NMib::NContract
 	};
 
 	NFunction::TCFunction<void(CContractViolation const&)> fg_SetContractLogger(NFunction::TCFunction<void(CContractViolation const&)> const &_Logger);
+#if defined DMibContract_AnyEnabled
 	NFunction::TCFunction<void(CContractViolation const&)> fg_SetContractLoggerThrowExceptions();
+#endif
 
 	class CContractBreakpointEnablerScope
 	{
