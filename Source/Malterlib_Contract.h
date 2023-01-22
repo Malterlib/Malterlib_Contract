@@ -35,7 +35,7 @@ int32 foo(int32 _Expression) {
 }
 
 DCheck( condition );
-Internal consistency fg_Check. Just a hotted assert.
+Internal consistency check. Just a hotted assert.
 
 DNeverGetHere;
 Reachability guard. A note in the code stating that it should not be possible to reach that _Line.
@@ -49,7 +49,7 @@ void foo(int32 _Expression) {
 }
 
 DHandlingToDo( condition );
-Error code fg_Check. Just a placeholder to show that there are unhandled error cases
+Error code check. Just a placeholder to show that there are unhandled error cases
 Usage:
 void foo() {
     BOOL ret = ::SystemCall();
@@ -287,10 +287,6 @@ namespace NMib::NContract
 		void fg_EnableContractsInThisThread(bool);
 		bool fg_ContractsEnabledInThisThread();
 
-		inline_small bool fg_Check(bool cond)
-		{
-			return cond;
-		}
 		inline_small bool fg_Enabled()
 		{
 			return fg_ContractsEnabledInThisThread();
@@ -332,7 +328,7 @@ namespace NMib::NContract
 
 		struct CContractRequire : CContractBase
 		{
-			CContractRequire(const ch8 *_pFile, int32 _Line, const ch8 *_pFunction, const ch8 *_pStatement)
+			CContractRequire(const ch8 *_pFile, int32 _Line, const ch8 *_pFunction, const ch8 *_pStatement) function_does_not_return_analyzer
 				: CContractBase(_pFile, _Line, _pFunction, _pStatement)
 			{
 			}
@@ -346,7 +342,7 @@ namespace NMib::NContract
 
 		struct CContractEnsure : CContractBase
 		{
-			CContractEnsure(const ch8 *_pFile, int32 _Line, const ch8 *_pFunction, const ch8 *_pStatement)
+			CContractEnsure(const ch8 *_pFile, int32 _Line, const ch8 *_pFunction, const ch8 *_pStatement) function_does_not_return_analyzer
 				: CContractBase(_pFile, _Line, _pFunction, _pStatement)
 			{
 			}
@@ -361,7 +357,7 @@ namespace NMib::NContract
 
 		struct CContractCheck : CContractBase
 		{
-			CContractCheck(const ch8 *_pFile, int32 _Line, const ch8 *_pFunction, const ch8 *_pStatement)
+			CContractCheck(const ch8 *_pFile, int32 _Line, const ch8 *_pFunction, const ch8 *_pStatement) function_does_not_return_analyzer
 				: CContractBase(_pFile, _Line, _pFunction, _pStatement)
 			{
 			}
@@ -376,7 +372,7 @@ namespace NMib::NContract
 
 		struct CContractInvariant : CContractBase
 		{
-			CContractInvariant(const ch8 *_pFile, int32 _Line, const ch8 *_pFunction, const ch8 *_pClassName, const ch8 *_pStatement)
+			CContractInvariant(const ch8 *_pFile, int32 _Line, const ch8 *_pFunction, const ch8 *_pClassName, const ch8 *_pStatement) function_does_not_return_analyzer
 				: CContractBase(_pFile, _Line, _pFunction, _pStatement)
 			{
 			}
@@ -393,7 +389,7 @@ namespace NMib::NContract
 
 		struct CContractNeverGetHere : CContractBase
 		{
-			CContractNeverGetHere(const ch8 *_pFile, int32 _Line, const ch8 *_pFunction)
+			CContractNeverGetHere(const ch8 *_pFile, int32 _Line, const ch8 *_pFunction) function_does_not_return_analyzer
 				: CContractBase(_pFile, _Line, _pFunction, nullptr)
 			{
 			}
@@ -533,7 +529,7 @@ namespace NMib::NContract
 #define DMibContractHelperRequireExpression_OP(_Expression, _Next) DMibContractHelperRequireExpression_B.f_LogVariable(#_Expression,(_Expression)) || DMibContractHelperRequireExpression_ ## _Next
 
 #define DMibRequire(_Expression) \
-	if ( !NMib::NContract::NPrivate::fg_Enabled() || NMib::NContract::NPrivate::fg_Check(!!(_Expression)) ); else \
+	if ( !NMib::NContract::NPrivate::fg_Enabled() || expect_analyzer(!!(_Expression)) ); else \
 	if ( NMib::NContract::NPrivate::CContractRequire const DMibContractHelperRequireExpression_B = \
 	NMib::NContract::NPrivate::CContractRequire(DMibPFile, DMibPLine, DMibPFunctionSignature, #_Expression)); else \
 	if ( NMib::NContract::NPrivate::CContractRequire const& DMibContractHelperRequireExpression_A = DMibContractHelperRequireExpression_B ); else \
@@ -558,7 +554,7 @@ enum {DMibContractHelperRequireExpression_A, DMibContractHelperRequireExpression
 #define DMibContractHelperEnsureExpression_OP(_Expression, _Next) DMibContractHelperEnsureExpression_B.f_LogVariable(#_Expression,(_Expression)) || DMibContractHelperEnsureExpression_ ## _Next
 
 #define DMibEnsure(_Expression) \
-	if (!NMib::NContract::NPrivate::fg_Enabled() || NMib::NContract::NPrivate::fg_Check(!!(_Expression)) ); else \
+	if (!NMib::NContract::NPrivate::fg_Enabled() || expect_analyzer(!!(_Expression)) ); else \
 	if (NMib::NContract::NPrivate::CContractEnsure const DMibContractHelperEnsureExpression_B = NMib::NContract::NPrivate::CContractEnsure(DMibPFile, DMibPLine, DMibPFunctionSignature, #_Expression)); else \
 	if (NMib::NContract::NPrivate::CContractEnsure const& DMibContractHelperEnsureExpression_A = DMibContractHelperEnsureExpression_B ); else \
 	NMib::NContract::g_ContractBreak = DMibContractHelperEnsureExpression_A = DMibContractHelperEnsureExpression_A || DMibContractHelperEnsureExpression_B || DMibContractHelperEnsureExpression_A
@@ -595,7 +591,7 @@ enum {DMibContractHelperEnsureExpression_A, DMibContractHelperEnsureExpression_B
 #define DMibContractHelperCheckExpression_OP(_Expression, _Next) DMibContractHelperCheckExpression_B.f_LogVariable(#_Expression,(_Expression)) || DMibContractHelperCheckExpression_ ## _Next // gcc
 
 #define DMibCheck(_Expression) \
-	if (NMib::NContract::NPrivate::fg_Check(!NMib::NContract::NPrivate::fg_Enabled() || !!(_Expression)) ); \
+	if (!NMib::NContract::NPrivate::fg_Enabled() || expect_analyzer(!!(_Expression)) ); \
 	else if (NMib::NContract::NPrivate::CContractCheck const DMibContractHelperCheckExpression_B = \
 	NMib::NContract::NPrivate::CContractCheck(DMibPFile, DMibPLine, DMibPFunctionSignature, #_Expression)); \
 	else if (NMib::NContract::NPrivate::CContractCheck const& DMibContractHelperCheckExpression_A = DMibContractHelperCheckExpression_B ); \
@@ -620,7 +616,7 @@ enum {DMibContractHelperCheckExpression_A, DMibContractHelperCheckExpression_B }
 #define DMibContractHelperErrorHandlingToDoExpression_OP(_Expression, _Next) DMibContractHelperErrorHandlingToDoExpression_B.f_LogVariable(#_Expression,(_Expression)) || DMibContractHelperErrorHandlingToDoExpression_ ## _Next // gcc
 
 #define DMibErrorHandlingToDo(_Expression) \
-	if (!NMib::NContract::NPrivate::fg_Enabled() || NMib::NContract::NPrivate::fg_Check(!!(_Expression)) ); \
+	if (!NMib::NContract::NPrivate::fg_Enabled() || expect_analyzer(!!(_Expression)) ); \
 	else if (NMib::NContract::NPrivate::CContractCheck const DMibContractHelperErrorHandlingToDoExpression_B = \
 	NMib::NContract::NPrivate::CContractCheck(DMibPFile, DMibPLine, DMibPFunctionSignature, #_Expression)); \
 	else if (NMib::NContract::NPrivate::CContractCheck const& DMibContractHelperErrorHandlingToDoExpression_A = DMibContractHelperErrorHandlingToDoExpression_B ); \
@@ -645,7 +641,7 @@ enum {DMibContractHelperErrorHandlingToDoExpression_A, DMibContractHelperErrorHa
 
 #define DMibNeverGetHere \
 	if (NMib::NContract::NPrivate::CDisableReturnValue const DisableReturnValue = NMib::NContract::NPrivate::CDisableReturnValue()); else \
-	if (!NMib::NContract::NPrivate::fg_Enabled() || NMib::NContract::NPrivate::fg_Check(false) ); else \
+	if (!NMib::NContract::NPrivate::fg_Enabled()); else \
 	if (NMib::NContract::NPrivate::CContractNeverGetHere const DMibContractHelperNeverGetHereExpression_B = NMib::NContract::NPrivate::CContractNeverGetHere(DMibPFile,DMibPLine,DMibPFunctionSignature)); else \
 	if (NMib::NContract::NPrivate::CContractNeverGetHere const& DMibContractHelperNeverGetHereExpression_A = DMibContractHelperNeverGetHereExpression_B ); \
 	else NMib::NContract::g_ContractBreak = DMibContractHelperNeverGetHereExpression_A = DMibContractHelperNeverGetHereExpression_A || DMibContractHelperNeverGetHereExpression_B || DMibContractHelperNeverGetHereExpression_A // gcc
@@ -704,7 +700,7 @@ private: \
 #define DMibContractHelperInvariantExpression_OP(_Expression, _Next) DMibContractHelperInvariantExpression_B.f_LogVariable(#_Expression,(_Expression)) || DMibContractHelperInvariantExpression_ ## _Next
 
 #define DMibInvariant(_Expression) \
-	if (!NMib::NContract::NPrivate::fg_Enabled() || NMib::NContract::NPrivate::fg_Check(!!(_Expression)) ); else \
+	if (!NMib::NContract::NPrivate::fg_Enabled() || !!(_Expression) ); else \
 	if (NMib::NContract::NPrivate::CContractInvariant const DMibContractHelperInvariantExpression_B = \
 	NMib::NContract::NPrivate::CContractInvariant(_pFile, _Line, _pFunction,_class_name(), #_Expression)); else \
 	if (NMib::NContract::NPrivate::CContractInvariant const& DMibContractHelperInvariantExpression_A = DMibContractHelperInvariantExpression_B ); else \
