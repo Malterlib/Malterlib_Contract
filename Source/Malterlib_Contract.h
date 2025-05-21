@@ -456,7 +456,7 @@ namespace NMib::NContract
 				--m_Client.f_GetContractCounterInstance();
 			}
 
-			typedef t_CClass CClient;
+			using CClient = t_CClass;
 		private:
 			CInvariantManager(const CInvariantManager &);
 			const CInvariantManager& operator=(const CInvariantManager &);
@@ -660,7 +660,7 @@ enum {DMibContractHelperNeverGetHereExpression_A, DMibContractHelperNeverGetHere
 #if defined DMibContractConfigure_InvariantEnabled
 #define	DMibClassInvariants( Type )		\
 	private: \
-	typedef NMib::NContract::NPrivate::CInvariantManager<Type> CContractsConfigure_InvariantEnabledChecker; \
+	using CContractsConfigure_InvariantEnabledChecker = NMib::NContract::NPrivate::CInvariantManager<Type>; \
 	friend class NMib::NContract::NPrivate::CInvariantManager<Type>; \
 	mutable NMib::NContract::NPrivate::CCounter m_ContractsCounterInstance; \
 	virtual NMib::NContract::NPrivate::CCounter& f_GetContractCounterInstance() const { return m_ContractsCounterInstance; } \
