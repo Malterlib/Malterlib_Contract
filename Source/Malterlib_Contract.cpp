@@ -7,7 +7,7 @@
 //  See http://www.boost.org
 //  for more information
 
-// Copyright © 2015 Hansoft AB 
+// Copyright © 2015 Hansoft AB
 // Distributed under the MIT license, see license text in LICENSE.Malterlib
 
 #include "Malterlib_Contract.h"
@@ -27,11 +27,11 @@ namespace NMib::NContract
 void fg_LogViolation
 (
 	NMib::NStr::CStrNonTracked &_String,
-	const ch8 *_pType, 
-	const ch8 *_pFile, 
-	int32 _Line, 
-	const ch8 *_pFunction, 
-	const ch8 *_pVariables, 
+	const ch8 *_pType,
+	const ch8 *_pFile,
+	int32 _Line,
+	const ch8 *_pFunction,
+	const ch8 *_pVariables,
 	const ch8 *_pStatement,
 	bool _bCallstack,
 	const ch8 *_pClassName = 0
@@ -39,11 +39,11 @@ void fg_LogViolation
 {
 	using namespace NMib::NStr;
 	_String += CStrNonTracked::CFormat("{} violation:" DMibNewLine) << _pType;
-	if (_pStatement) 
+	if (_pStatement)
 		_String += CStrNonTracked::CFormat("    Statement:{\n}        {}" DMibNewLine) << _pStatement;
-	if (*_pVariables) 
+	if (*_pVariables)
 		_String += CStrNonTracked::CFormat("    Where:{\n}        {}" DMibNewLine) << _pVariables;
-	if (_pClassName) 
+	if (_pClassName)
 		_String += CStrNonTracked::CFormat("    Class:{\n}        {}" DMibNewLine) << _pClassName;
 
 	_String += CStrNonTracked::CFormat("    Location:{\n}        Function: {}" DMibNewLine) << _pFunction;

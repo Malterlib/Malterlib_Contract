@@ -1,4 +1,4 @@
-// Copyright © 2015 Hansoft AB 
+// Copyright © 2015 Hansoft AB
 // Distributed under the MIT license, see license text in LICENSE.Malterlib
 
 #if DMibEnableSafeCheck > 0
@@ -33,7 +33,7 @@ namespace NMib::NContract
 	constinit NStorage::TCAggregate<NThread::TCThreadLocal<CSafeCheckThrowsExcetionThreadLocal, NMemory::CAllocator_NonTrackedHeap, NThread::EThreadLocalFlag_Inherit>, 64>
 		g_SafeCheckThrowsException = {DAggregateInit}
 	;
-	
+
 	bool fg_MibSafeCheckSetThrowsException(bool _bThrowsException)
 	{
 		auto &ThreadLocal = **g_SafeCheckThrowsException;

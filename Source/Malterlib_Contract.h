@@ -7,7 +7,7 @@
 //  See http://www.boost.org
 //  for more information
 
-// Copyright © 2015 Hansoft AB 
+// Copyright © 2015 Hansoft AB
 // Distributed under the MIT license, see license text in LICENSE.Malterlib
 
 #pragma once
@@ -17,7 +17,7 @@
 USAGE:
 ======
 
-=== Contract asserts: === 
+=== Contract asserts: ===
 DRequire( condition );
 Precondition.  The part of the contract the _Client must promise before calling a _pFunction.
 Usage:
@@ -58,7 +58,7 @@ void foo() {
 DInvariant( condition );
 See below.
 
-=== Extra data === 
+=== Extra data ===
 All contract asserts can be decorated with extra information
 Add logging of data in case of violation:
 DEnsure( ret != OK) (ret) (::GetLastError());
@@ -68,7 +68,7 @@ DEnsure( ret != OK) ("Ooops");
 Will add "Note: Ooops" to the log.
 Any number of extra data can be added for logging.
 
-=== Verifying modifications === 
+=== Verifying modifications ===
 DOld (variable)
 Accessing the stored value of a variable.
 DOldDef (type,variable)
@@ -83,7 +83,7 @@ void foo(int32 _Expression)
     DEnsure( Old(_Expression) < _Expression );
 }
 
-=== Invariants === 
+=== Invariants ===
 DValidateInvariant();
 Called at entry in each non-private _pFunction to validate invariants
 
@@ -131,7 +131,7 @@ class C {
     }
 };
 
-=== Configuration === 
+=== Configuration ===
 DMibContractConfigure_Callstack
 set to 1 if a callstack should be added to the contract log
 
@@ -541,7 +541,7 @@ enum {DMibContractHelperRequireExpression_A, DMibContractHelperRequireExpression
 #define DMibContractHelperRequireExpression_OP(_Expression, _Next) DMibContractHelperRequireExpression_ ## _Next
 
 #define DMibRequire(_Expression) if (false); else (void)DMibContractHelperRequireExpression_A
-#endif 
+#endif
 
 
 //--------------------------------------------------------------------
@@ -565,7 +565,7 @@ enum {DMibContractHelperEnsureExpression_A, DMibContractHelperEnsureExpression_B
 #define DMibContractHelperEnsureExpression_OP(_Expression, _Next) DMibContractHelperEnsureExpression_ ## _Next
 
 #define DMibEnsure(_Expression) if (false); else (void)DMibContractHelperEnsureExpression_A
-#endif 
+#endif
 
 
 //--------------------------------------------------------------------
@@ -579,7 +579,7 @@ enum {DMibContractHelperEnsureExpression_A, DMibContractHelperEnsureExpression_B
 # define	DMibContractOldExpr( TYPE, VAR, EXPR )
 # define	DMibContractOldDef( TYPE, VAR )
 # define DMibContractOld( VAR )
-#endif 
+#endif
 
 //--------------------------------------------------------------------
 // Definition of DMibCheck
@@ -603,7 +603,7 @@ enum {DMibContractHelperCheckExpression_A, DMibContractHelperCheckExpression_B }
 #define DMibContractHelperCheckExpression_OP(_Expression, _Next) DMibContractHelperCheckExpression_ ## _Next
 
 #define DMibCheck(_Expression) if (false); else (void)DMibContractHelperCheckExpression_A
-#endif 
+#endif
 
 
 //--------------------------------------------------------------------
@@ -628,7 +628,7 @@ enum {DMibContractHelperErrorHandlingToDoExpression_A, DMibContractHelperErrorHa
 #define DMibContractHelperErrorHandlingToDoExpression_OP(_Expression, _Next) DMibContractHelperErrorHandlingToDoExpression_ ## _Next
 
 #define DMibErrorHandlingToDo(_Expression) if (false); else (void)DMibContractHelperErrorHandlingToDoExpression_A
-#endif 
+#endif
 
 //--------------------------------------------------------------------
 // Definition of Never-get-here
@@ -652,7 +652,7 @@ enum {DMibContractHelperNeverGetHereExpression_A, DMibContractHelperNeverGetHere
 #define DMibContractHelperNeverGetHereExpression_OP(_Expression, _Next) DMibContractHelperNeverGetHereExpression_ ## _Next
 
 #define DMibNeverGetHere if (NMib::NContract::NPrivate::CDisableReturnValue const DisableReturnValue = NMib::NContract::NPrivate::CDisableReturnValue()); else (void)DMibContractHelperNeverGetHereExpression_A
-#endif 
+#endif
 
 //--------------------------------------------------------------------
 // Definitions for invariants
@@ -683,13 +683,13 @@ enum {DMibContractHelperNeverGetHereExpression_A, DMibContractHelperNeverGetHere
 #else
 #define DMibValidateInvariant( ) DMibContractHelperCheckInvariant( 0 )
 #endif
-#else 
+#else
 #define DMibClassInvariants( Type ) \
 private: \
 	void _not_used_invariant() const
 #define	DMibBaseInvariant( classType )
 #define	DMibContractHelperCheckInvariant(AtEntry)
-#define DMibValidateConstruction( ) 
+#define DMibValidateConstruction( )
 #define DMibValidateInvariant( )
 #endif
 
@@ -712,7 +712,7 @@ enum {DMibContractHelperInvariantExpression_A, DMibContractHelperInvariantExpres
 #define DMibContractHelperInvariantExpression_OP(_Expression, _Next) DMibContractHelperInvariantExpression_ ## _Next
 
 #define DMibInvariant(_Expression) if (false); else (void)DMibContractHelperInvariantExpression_A
-#endif 
+#endif
 
 
 #define DMibContractBreakEnablerScope NMib::NContract::CContractBreakpointEnablerScope ContractsBreakpointEnablerScope

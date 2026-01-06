@@ -1,4 +1,4 @@
-﻿// Copyright © 2015 Hansoft AB 
+﻿// Copyright © 2015 Hansoft AB
 // Distributed under the MIT license, see license text in LICENSE.Malterlib
 
 #define DMibContractConfigure_AllEnabled
@@ -10,9 +10,9 @@
 namespace
 {
 
-	class invariant_base_test 
+	class invariant_base_test
 	{
-		DMibClassInvariants(invariant_base_test) 
+		DMibClassInvariants(invariant_base_test)
 		{
 			DMibInvariant(iValidBase);
 			DMibInvariant(iValidBase) (iValidBase);
@@ -27,7 +27,7 @@ namespace
 	public: // Setup
 		CContracts_Tests()
 		{
-			//setContractLogger(fg_Bind(&contract_test::report_issue,this,g_1));  
+			//setContractLogger(fg_Bind(&contract_test::report_issue,this,g_1));
 		}
 	public: // Tests
 
@@ -85,7 +85,7 @@ namespace
 		}
 		*/
 	private: // invariant
-		/*DMibClassInvariants(CTest_Tests) 
+		/*DMibClassInvariants(CTest_Tests)
 		{
 			DMibBaseInvariant(invariant_base_test);
 			DMibInvariant(iValid);
