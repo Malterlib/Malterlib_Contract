@@ -105,9 +105,9 @@ inline_never bool fg_FailContract(const ch8 *_pFile, int32 _Line, const ch8 *_pC
 	case NMib::EDebugContractFailureAction_Break:
 		{
 			if (_pStatement)
-				DMibTrace(DMibPFileLineFormat " Contract violation: {} ({})" DMibNewLine, _pFile << _Line << _pContractType << _pStatement);
+				DMibTrace(DMibPFileLineFormat " Contract violation: {} ({})" DMibNewLine, _pFile, _Line, _pContractType, _pStatement);
 			else
-				DMibTrace(DMibPFileLineFormat " Contract violation: {}" DMibNewLine, _pFile << _Line << _pContractType);
+				DMibTrace(DMibPFileLineFormat " Contract violation: {}" DMibNewLine, _pFile, _Line, _pContractType);
 			NMib::NSys::fg_System_ReportContractViolation(LastContractMessage);
 			{
 				DMibLock(g_LastContractLock);
