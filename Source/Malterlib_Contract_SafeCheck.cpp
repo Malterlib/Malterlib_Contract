@@ -56,7 +56,7 @@ namespace NMib::NContract
 
 	inline_never bool fg_MibSafeCheck(const ch8 *_pFile, int32 _Line, const ch8 *_pExpression, const ch8 *_pMessage) function_does_not_return_analyzer
 	{
-		if (!g_SafeCheckThrowsException.f_WasDestructed() && (**g_SafeCheckThrowsException).m_bThrowsException.f_Load(NAtomic::EMemoryOrder_Relaxed))
+		if (!g_SafeCheckThrowsException.f_WasDestructed() && (**g_SafeCheckThrowsException).m_bThrowsException.f_Load(NAtomic::gc_MemoryOrder_Relaxed))
 		{
 			NStr::CStrNonTracked Message;
 			if (*_pMessage)
