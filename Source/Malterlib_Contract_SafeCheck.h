@@ -35,6 +35,7 @@ namespace NMib::NContract
 	}
 
 #	if DMibEnableSafeCheck > 0
+		constexpr static bool gc_bSafeCheckNoExcept = false;
 #		define DMibIfEnableSafeCheck(...) __VA_ARGS__
 	#	define DMibIfNotEnableSafeCheck(...)
 #		define DMibSafeCheck(d_Expression, d_Message) {if (!expect_analyzer(!!(d_Expression))) {if (NMib::NContract::fg_MibSafeCheck(DMibPFile, DMibPLine, #d_Expression, d_Message)) DMibPDebugBreak;}}
@@ -42,6 +43,7 @@ namespace NMib::NContract
 		bool fg_MibSafeCheck(const ch8 *_pFile, int32 _Line, const ch8 *_pExpression, const ch8 *_pMessage) function_does_not_return_analyzer;
 		bool fg_MibSafeCheckSetThrowsException(bool _bThrowsException);
 #	else
+		constexpr static bool gc_bSafeCheckNoExcept = true;
 #	define DMibIfEnableSafeCheck(...)
 #	define DMibIfNotEnableSafeCheck(...) __VA_ARGS__
 #		define DMibSafeCheck(d_Expression, d_Message) (void)0
