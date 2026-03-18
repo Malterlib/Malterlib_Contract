@@ -430,7 +430,10 @@ namespace NMib::NContract
 			CCounter() : m_Counter(0) { }
 			CCounter& operator++() { ++m_Counter; return *this; }
 			CCounter& operator--() { --m_Counter; return *this; }
-			bool operator==(int32 const& rhs) const { return m_Counter==rhs; }
+			bool operator == (int32 const& rhs) const noexcept
+			{
+				 return m_Counter == rhs;
+			}
 		private:
 			int32 m_Counter;
 		};
