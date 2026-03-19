@@ -66,9 +66,9 @@ namespace
 		void f_DoTests()
 		{
 #ifdef DMibContractConfigure_RequireEnabled
-			DMibTestCategory("Require")
+			DMibTestSuite("Require")
 			{
-				DMibTestSuite("Passing condition does not trigger")
+				DMibTestCategory("Passing condition does not trigger")
 				{
 					auto fOldLogger = fp_InstallRecordingLogger();
 					auto Restore = NMib::g_OnScopeExit / [&] { fg_SetContractLogger(fOldLogger); };
@@ -77,7 +77,7 @@ namespace
 					DMibExpectFalse(m_Violation.m_bTriggered);
 				};
 
-				DMibTestSuite("Failing condition triggers violation")
+				DMibTestCategory("Failing condition triggers violation")
 				{
 					auto fOldLogger = fp_InstallRecordingLogger();
 					auto Restore = NMib::g_OnScopeExit / [&] { fg_SetContractLogger(fOldLogger); };
@@ -88,7 +88,7 @@ namespace
 					DMibExpect(m_Violation.m_Statement, ==, CStrNonTracked("false"));
 				};
 
-				DMibTestSuite("Expression condition captures statement")
+				DMibTestCategory("Expression condition captures statement")
 				{
 					auto fOldLogger = fp_InstallRecordingLogger();
 					auto Restore = NMib::g_OnScopeExit / [&] { fg_SetContractLogger(fOldLogger); };
@@ -99,7 +99,7 @@ namespace
 					DMibExpect(m_Violation.m_Statement, ==, CStrNonTracked("x > 10"));
 				};
 
-				DMibTestSuite("Variable logging captures name and value")
+				DMibTestCategory("Variable logging captures name and value")
 				{
 					auto fOldLogger = fp_InstallRecordingLogger();
 					auto Restore = NMib::g_OnScopeExit / [&] { fg_SetContractLogger(fOldLogger); };
@@ -110,7 +110,7 @@ namespace
 					DMibExpect(m_Violation.m_Variables, ==, CStrNonTracked::CFormat("{\n}    TestVar = 42").f_GetStr());
 				};
 
-				DMibTestSuite("String note logging")
+				DMibTestCategory("String note logging")
 				{
 					auto fOldLogger = fp_InstallRecordingLogger();
 					auto Restore = NMib::g_OnScopeExit / [&] { fg_SetContractLogger(fOldLogger); };
@@ -120,7 +120,7 @@ namespace
 					DMibExpect(m_Violation.m_Variables, ==, CStrNonTracked::CFormat("{\n}    note: 'Custom note message'").f_GetStr());
 				};
 
-				DMibTestSuite("Multiple variable logging")
+				DMibTestCategory("Multiple variable logging")
 				{
 					auto fOldLogger = fp_InstallRecordingLogger();
 					auto Restore = NMib::g_OnScopeExit / [&] { fg_SetContractLogger(fOldLogger); };
@@ -135,9 +135,9 @@ namespace
 #endif
 
 #ifdef DMibContractConfigure_EnsureEnabled
-			DMibTestCategory("Ensure")
+			DMibTestSuite("Ensure")
 			{
-				DMibTestSuite("Passing condition does not trigger")
+				DMibTestCategory("Passing condition does not trigger")
 				{
 					auto fOldLogger = fp_InstallRecordingLogger();
 					auto Restore = NMib::g_OnScopeExit / [&] { fg_SetContractLogger(fOldLogger); };
@@ -146,7 +146,7 @@ namespace
 					DMibExpectFalse(m_Violation.m_bTriggered);
 				};
 
-				DMibTestSuite("Failing condition triggers violation")
+				DMibTestCategory("Failing condition triggers violation")
 				{
 					auto fOldLogger = fp_InstallRecordingLogger();
 					auto Restore = NMib::g_OnScopeExit / [&] { fg_SetContractLogger(fOldLogger); };
@@ -157,7 +157,7 @@ namespace
 					DMibExpect(m_Violation.m_Statement, ==, CStrNonTracked("false"));
 				};
 
-				DMibTestSuite("Variable logging captures name and value")
+				DMibTestCategory("Variable logging captures name and value")
 				{
 					auto fOldLogger = fp_InstallRecordingLogger();
 					auto Restore = NMib::g_OnScopeExit / [&] { fg_SetContractLogger(fOldLogger); };
@@ -171,9 +171,9 @@ namespace
 #endif
 
 #ifdef DMibContractConfigure_CheckEnabled
-			DMibTestCategory("Check")
+			DMibTestSuite("Check")
 			{
-				DMibTestSuite("Passing condition does not trigger")
+				DMibTestCategory("Passing condition does not trigger")
 				{
 					auto fOldLogger = fp_InstallRecordingLogger();
 					auto Restore = NMib::g_OnScopeExit / [&] { fg_SetContractLogger(fOldLogger); };
@@ -182,7 +182,7 @@ namespace
 					DMibExpectFalse(m_Violation.m_bTriggered);
 				};
 
-				DMibTestSuite("Failing condition triggers violation")
+				DMibTestCategory("Failing condition triggers violation")
 				{
 					auto fOldLogger = fp_InstallRecordingLogger();
 					auto Restore = NMib::g_OnScopeExit / [&] { fg_SetContractLogger(fOldLogger); };
@@ -193,7 +193,7 @@ namespace
 					DMibExpect(m_Violation.m_Statement, ==, CStrNonTracked("false"));
 				};
 
-				DMibTestSuite("Mixed variable and note logging")
+				DMibTestCategory("Mixed variable and note logging")
 				{
 					auto fOldLogger = fp_InstallRecordingLogger();
 					auto Restore = NMib::g_OnScopeExit / [&] { fg_SetContractLogger(fOldLogger); };
@@ -207,9 +207,9 @@ namespace
 #endif
 
 #ifdef DMibContractConfigure_NeverGetHereEnabled
-			DMibTestCategory("NeverGetHere")
+			DMibTestSuite("NeverGetHere")
 			{
-				DMibTestSuite("Triggers violation when reached")
+				DMibTestCategory("Triggers violation when reached")
 				{
 					auto fOldLogger = fp_InstallRecordingLogger();
 					auto Restore = NMib::g_OnScopeExit / [&] { fg_SetContractLogger(fOldLogger); };
@@ -222,9 +222,9 @@ namespace
 #endif
 
 #ifdef DMibContractConfigure_EnsureEnabled
-			DMibTestCategory("OldValue")
+			DMibTestSuite("OldValue")
 			{
-				DMibTestSuite("OldDef captures initial value")
+				DMibTestCategory("OldDef captures initial value")
 				{
 					auto fOldLogger = fp_InstallRecordingLogger();
 					auto Restore = NMib::g_OnScopeExit / [&] { fg_SetContractLogger(fOldLogger); };
@@ -241,7 +241,7 @@ namespace
 					DMibExpectFalse(m_Violation.m_bTriggered);
 				};
 
-				DMibTestSuite("OldDef detects postcondition failure")
+				DMibTestCategory("OldDef detects postcondition failure")
 				{
 					auto fOldLogger = fp_InstallRecordingLogger();
 					auto Restore = NMib::g_OnScopeExit / [&] { fg_SetContractLogger(fOldLogger); };
@@ -254,7 +254,7 @@ namespace
 					DMibExpect(m_Violation.m_Type, ==, CStrNonTracked("Ensure"));
 				};
 
-				DMibTestSuite("OldExpr captures expression result")
+				DMibTestCategory("OldExpr captures expression result")
 				{
 					int32 x = 5;
 					DMibContractOldExpr(int32, DoubleX, x * 2);
@@ -268,9 +268,9 @@ namespace
 #endif
 
 #ifdef DMibContractConfigure_CheckEnabled
-			DMibTestCategory("EnableContracts")
+			DMibTestSuite("EnableContracts")
 			{
-				DMibTestSuite("Disable prevents violations")
+				DMibTestCategory("Disable prevents violations")
 				{
 					auto fOldLogger = fp_InstallRecordingLogger();
 					auto Restore = NMib::g_OnScopeExit / [&] { fg_SetContractLogger(fOldLogger); };
@@ -282,7 +282,7 @@ namespace
 					}
 				};
 
-				DMibTestSuite("Re-enable after scope exit")
+				DMibTestCategory("Re-enable after scope exit")
 				{
 					auto fOldLogger = fp_InstallRecordingLogger();
 					auto Restore = NMib::g_OnScopeExit / [&] { fg_SetContractLogger(fOldLogger); };
@@ -297,7 +297,7 @@ namespace
 					DMibExpectTrue(m_Violation.m_bTriggered);
 				};
 
-				DMibTestSuite("Nested enable and disable")
+				DMibTestCategory("Nested enable and disable")
 				{
 					auto fOldLogger = fp_InstallRecordingLogger();
 					auto Restore = NMib::g_OnScopeExit / [&] { fg_SetContractLogger(fOldLogger); };
@@ -324,10 +324,10 @@ namespace
 #endif
 
 #ifdef DMibContract_AnyEnabled
-			DMibTestCategory("ExceptionLogger")
+			DMibTestSuite("ExceptionLogger")
 			{
 #	ifdef DMibContractConfigure_RequireEnabled
-				DMibTestSuite("Require throws CContractException_Require")
+				DMibTestCategory("Require throws CContractException_Require")
 				{
 					auto fOldLogger = fg_SetContractLoggerThrowExceptions();
 					auto Restore = NMib::g_OnScopeExit / [&] { fg_SetContractLogger(fOldLogger); };
@@ -346,7 +346,7 @@ namespace
 #	endif
 
 #	ifdef DMibContractConfigure_EnsureEnabled
-				DMibTestSuite("Ensure throws CContractException_Ensure")
+				DMibTestCategory("Ensure throws CContractException_Ensure")
 				{
 					auto fOldLogger = fg_SetContractLoggerThrowExceptions();
 					auto Restore = NMib::g_OnScopeExit / [&] { fg_SetContractLogger(fOldLogger); };
@@ -365,7 +365,7 @@ namespace
 #	endif
 
 #	ifdef DMibContractConfigure_CheckEnabled
-				DMibTestSuite("Check throws CContractException_Check")
+				DMibTestCategory("Check throws CContractException_Check")
 				{
 					auto fOldLogger = fg_SetContractLoggerThrowExceptions();
 					auto Restore = NMib::g_OnScopeExit / [&] { fg_SetContractLogger(fOldLogger); };
@@ -384,7 +384,7 @@ namespace
 #	endif
 
 #	ifdef DMibContractConfigure_NeverGetHereEnabled
-				DMibTestSuite("NeverGetHere throws CContractException_NeverGetHere")
+				DMibTestCategory("NeverGetHere throws CContractException_NeverGetHere")
 				{
 					auto fOldLogger = fg_SetContractLoggerThrowExceptions();
 					auto Restore = NMib::g_OnScopeExit / [&] { fg_SetContractLogger(fOldLogger); };
@@ -403,7 +403,7 @@ namespace
 #	endif
 
 #	ifdef DMibContractConfigure_RequireEnabled
-				DMibTestSuite("All contract exceptions derive from CContractException")
+				DMibTestCategory("All contract exceptions derive from CContractException")
 				{
 					auto fOldLogger = fg_SetContractLoggerThrowExceptions();
 					auto Restore = NMib::g_OnScopeExit / [&] { fg_SetContractLogger(fOldLogger); };
@@ -424,9 +424,9 @@ namespace
 #endif
 
 #ifdef DMibContractConfigure_CheckEnabled
-			DMibTestCategory("ContractViolation")
+			DMibTestSuite("ContractViolation")
 			{
-				DMibTestSuite("Violation captures source location")
+				DMibTestCategory("Violation captures source location")
 				{
 					auto fOldLogger = fp_InstallRecordingLogger();
 					auto Restore = NMib::g_OnScopeExit / [&] { fg_SetContractLogger(fOldLogger); };
@@ -437,7 +437,7 @@ namespace
 					DMibExpectTrue(m_Violation.m_Function.f_GetLen() > 0);
 				};
 
-				DMibTestSuite("ComposeLogMessage produces output")
+				DMibTestCategory("ComposeLogMessage produces output")
 				{
 					auto fOldLogger = fp_InstallRecordingLogger();
 					auto Restore = NMib::g_OnScopeExit / [&] { fg_SetContractLogger(fOldLogger); };
@@ -447,7 +447,7 @@ namespace
 					DMibExpectTrue(m_Violation.m_LogMessage.f_GetLen() > 0);
 				};
 
-				DMibTestSuite("BugId is consistent for same statement")
+				DMibTestCategory("BugId is consistent for same statement")
 				{
 					auto fOldLogger = fp_InstallRecordingLogger();
 					auto Restore = NMib::g_OnScopeExit / [&] { fg_SetContractLogger(fOldLogger); };
@@ -463,7 +463,7 @@ namespace
 					DMibExpect(FirstBugId, ==, SecondBugId);
 				};
 
-				DMibTestSuite("Different statements produce different BugIds")
+				DMibTestCategory("Different statements produce different BugIds")
 				{
 					auto fOldLogger = fp_InstallRecordingLogger();
 					auto Restore = NMib::g_OnScopeExit / [&] { fg_SetContractLogger(fOldLogger); };
@@ -479,9 +479,9 @@ namespace
 				};
 			};
 
-			DMibTestCategory("CustomLogger")
+			DMibTestSuite("CustomLogger")
 			{
-				DMibTestSuite("Custom logger receives violations")
+				DMibTestCategory("Custom logger receives violations")
 				{
 					bool bCustomCalled = false;
 					auto fOldLogger = fg_SetContractLogger
@@ -499,7 +499,7 @@ namespace
 				};
 
 #	if defined(DMibContractConfigure_RequireEnabled) && defined(DMibContractConfigure_EnsureEnabled) && defined(DMibContractConfigure_NeverGetHereEnabled)
-				DMibTestSuite("Logger receives correct violation type for each contract")
+				DMibTestCategory("Logger receives correct violation type for each contract")
 				{
 					CStrNonTracked ReceivedType;
 					auto fOldLogger = fg_SetContractLogger
@@ -526,7 +526,7 @@ namespace
 				};
 #	endif
 
-				DMibTestSuite("SetContractLogger returns previous logger")
+				DMibTestCategory("SetContractLogger returns previous logger")
 				{
 					bool bFirstCalled = false;
 					bool bSecondCalled = false;
