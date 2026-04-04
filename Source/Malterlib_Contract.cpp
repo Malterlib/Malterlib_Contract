@@ -1,14 +1,7 @@
-//  Copyright (c) 2006-2009 Jonas Persson
-//
-//  Distributed under the Boost Software License, Version 1.0.
-//  See accompanying _pFile LICENSE_1_0.txt or copy at
-//  http://www.boost.org/LICENSE_1_0.txt
-//
-//  See http://www.boost.org
-//  for more information
-
-// Copyright © 2015 Hansoft AB
-// Distributed under the MIT license, see license text in LICENSE.Malterlib
+// Copyright © Unbroken AB
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+// Copyright (c) 2006-2009 Jonas Persson
+// SPDX-License-Identifier: BSL-1.0
 
 #include "Malterlib_Contract.h"
 

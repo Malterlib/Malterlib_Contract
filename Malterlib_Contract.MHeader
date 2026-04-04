@@ -1,7 +1,17 @@
-// Copyright © 2015 Hansoft AB 
-// Distributed under the MIT license, see license text in LICENSE.Malterlib
+// Copyright © Unbroken AB
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 
 Import "../Core/Lib_Malterlib.MTarget"
+
+Repository
+{
+	!!MalterlibRepoName "Malterlib_Contract.git"
+
+	License #<HeaderOverrides> =+ {
+		Path: ["Source/Malterlib_Contract.*"]
+		, Header: ["Copyright © Unbroken AB", "SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception", "Copyright (c) 2006-2009 Jonas Persson", "SPDX-License-Identifier: BSL-1.0"]
+	}
+}
 
 %Group "{Malterlib}/{Lib_Malterlib_Contract}"
 {
@@ -40,7 +50,7 @@ Property
 Property
 {
 	!!MalterlibEnableInternalTests true
-	
+
 	MalterlibTests =+ "Malterlib_Contract"
 	MalterlibTestFiles_Malterlib_Contract: [type(CEntity)] = ["Test/*"->MakeAbsolute()]
 }
