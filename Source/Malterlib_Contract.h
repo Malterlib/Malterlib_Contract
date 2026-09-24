@@ -397,6 +397,12 @@ namespace NMib::NContract
 #define DMibContractRecursive
 #endif
 
+// The contract macros end in an expression that more variables to log are chained onto,
+// 'DMibCheck(x)(a)(b)', so they are built of 'if'/'else' rather than a block. The switch
+// makes each one statement of its own, so one guarded by a clause without braces leaves
+// no 'else' for the clause's 'if' to take.
+#define DMibContractStatement switch (0) case 0: default:
+
 //--------------------------------------------------------------------
 // Definition of Pre-condition
 //--------------------------------------------------------------------
@@ -407,6 +413,7 @@ namespace NMib::NContract
 #define DMibContractHelperRequireExpression_OP(_Expression, _Next) DMibContractHelperRequireExpression_B.f_LogVariable(#_Expression,(_Expression)) || DMibContractHelperRequireExpression_ ## _Next
 
 #define DMibRequire(_Expression) \
+	DMibContractStatement \
 	if ( !NMib::NContract::NPrivate::fg_Enabled() || expect_analyzer(!!(_Expression)) ); else \
 	if ( NMib::NContract::NPrivate::CContractRequire const DMibContractHelperRequireExpression_B = \
 	NMib::NContract::NPrivate::CContractRequire(DMibPFile, DMibPLine, DMibPFunctionSignature, #_Expression)); else \
@@ -418,7 +425,7 @@ enum {DMibContractHelperRequireExpression_A, DMibContractHelperRequireExpression
 #define DMibContractHelperRequireExpression_A(_Expression) DMibContractHelperRequireExpression_OP(_Expression, B)
 #define DMibContractHelperRequireExpression_OP(_Expression, _Next) DMibContractHelperRequireExpression_ ## _Next
 
-#define DMibRequire(_Expression) if (false); else (void)DMibContractHelperRequireExpression_A
+#define DMibRequire(_Expression) DMibContractStatement if (false); else (void)DMibContractHelperRequireExpression_A
 #endif
 
 
@@ -432,6 +439,7 @@ enum {DMibContractHelperRequireExpression_A, DMibContractHelperRequireExpression
 #define DMibContractHelperEnsureExpression_OP(_Expression, _Next) DMibContractHelperEnsureExpression_B.f_LogVariable(#_Expression,(_Expression)) || DMibContractHelperEnsureExpression_ ## _Next
 
 #define DMibEnsure(_Expression) \
+	DMibContractStatement \
 	if (!NMib::NContract::NPrivate::fg_Enabled() || expect_analyzer(!!(_Expression)) ); else \
 	if (NMib::NContract::NPrivate::CContractEnsure const DMibContractHelperEnsureExpression_B = NMib::NContract::NPrivate::CContractEnsure(DMibPFile, DMibPLine, DMibPFunctionSignature, #_Expression)); else \
 	if (NMib::NContract::NPrivate::CContractEnsure const& DMibContractHelperEnsureExpression_A = DMibContractHelperEnsureExpression_B ); else \
@@ -442,7 +450,7 @@ enum {DMibContractHelperEnsureExpression_A, DMibContractHelperEnsureExpression_B
 #define DMibContractHelperEnsureExpression_A(_Expression) DMibContractHelperEnsureExpression_OP(_Expression, B)
 #define DMibContractHelperEnsureExpression_OP(_Expression, _Next) DMibContractHelperEnsureExpression_ ## _Next
 
-#define DMibEnsure(_Expression) if (false); else (void)DMibContractHelperEnsureExpression_A
+#define DMibEnsure(_Expression) DMibContractStatement if (false); else (void)DMibContractHelperEnsureExpression_A
 #endif
 
 
@@ -469,6 +477,7 @@ enum {DMibContractHelperEnsureExpression_A, DMibContractHelperEnsureExpression_B
 #define DMibContractHelperCheckExpression_OP(_Expression, _Next) DMibContractHelperCheckExpression_B.f_LogVariable(#_Expression,(_Expression)) || DMibContractHelperCheckExpression_ ## _Next // gcc
 
 #define DMibCheck(_Expression) \
+	DMibContractStatement \
 	if (!NMib::NContract::NPrivate::fg_Enabled() || expect_analyzer(!!(_Expression)) ); \
 	else if (NMib::NContract::NPrivate::CContractCheck const DMibContractHelperCheckExpression_B = \
 	NMib::NContract::NPrivate::CContractCheck(DMibPFile, DMibPLine, DMibPFunctionSignature, #_Expression)); \
@@ -480,7 +489,7 @@ enum {DMibContractHelperCheckExpression_A, DMibContractHelperCheckExpression_B }
 #define DMibContractHelperCheckExpression_A(_Expression) DMibContractHelperCheckExpression_OP(_Expression, B)
 #define DMibContractHelperCheckExpression_OP(_Expression, _Next) DMibContractHelperCheckExpression_ ## _Next
 
-#define DMibCheck(_Expression) if (false); else (void)DMibContractHelperCheckExpression_A
+#define DMibCheck(_Expression) DMibContractStatement if (false); else (void)DMibContractHelperCheckExpression_A
 #endif
 
 //--------------------------------------------------------------------
@@ -493,6 +502,7 @@ enum {DMibContractHelperCheckExpression_A, DMibContractHelperCheckExpression_B }
 #define DMibContractHelperNeverGetHereExpression_OP(_Expression, _Next) DMibContractHelperNeverGetHereExpression_B.f_LogVariable(#_Expression,(_Expression)) || DMibContractHelperNeverGetHereExpression_ ## _Next
 
 #define DMibNeverGetHere \
+	DMibContractStatement \
 	if (NMib::NContract::NPrivate::CDisableReturnValue const DisableReturnValue = NMib::NContract::NPrivate::CDisableReturnValue()); else \
 	if (!NMib::NContract::NPrivate::fg_Enabled()); else \
 	if (NMib::NContract::NPrivate::CContractNeverGetHere const DMibContractHelperNeverGetHereExpression_B = NMib::NContract::NPrivate::CContractNeverGetHere(DMibPFile,DMibPLine,DMibPFunctionSignature)); else \
@@ -504,7 +514,10 @@ enum {DMibContractHelperNeverGetHereExpression_A, DMibContractHelperNeverGetHere
 #define DMibContractHelperNeverGetHereExpression_A(_Expression) DMibContractHelperNeverGetHereExpression_OP(_Expression, B)
 #define DMibContractHelperNeverGetHereExpression_OP(_Expression, _Next) DMibContractHelperNeverGetHereExpression_ ## _Next
 
-#define DMibNeverGetHere if (NMib::NContract::NPrivate::CDisableReturnValue const DisableReturnValue = NMib::NContract::NPrivate::CDisableReturnValue()); else (void)DMibContractHelperNeverGetHereExpression_A
+#define DMibNeverGetHere \
+	DMibContractStatement \
+	if (NMib::NContract::NPrivate::CDisableReturnValue const DisableReturnValue = NMib::NContract::NPrivate::CDisableReturnValue()); else \
+	(void)DMibContractHelperNeverGetHereExpression_A
 #endif
 
 #define DMibContractBreakEnablerScope NMib::NContract::CContractBreakpointEnablerScope ContractsBreakpointEnablerScope
