@@ -38,8 +38,12 @@ namespace NMib::NContract
 		constexpr static bool gc_bSafeCheckNoExcept = false;
 #		define DMibIfEnableSafeCheck(...) __VA_ARGS__
 	#	define DMibIfNotEnableSafeCheck(...)
-#		define DMibSafeCheck(d_Expression, d_Message) {if (!expect_analyzer(!!(d_Expression))) {if (NMib::NContract::fg_MibSafeCheck(DMibPFile, DMibPLine, #d_Expression, d_Message)) DMibPDebugBreak;}}
-#		define DMibFastCheck(d_Expression) {if (!expect_analyzer(!!(d_Expression))) {DMibPDebugBreak; ::NMib::NContract::NPrivate::CNoReturn NoReturn; [[maybe_unused]] int x = 0; x = 1; ++x;}}
+		// A check is one statement that takes the terminator of the call it looks like, so it
+		// stands on its own behind a clause without braces, 'if (b) DMibSafeCheck(x, ""); else'.
+#		define DMibSafeCheck(d_Expression, d_Message) \
+			do {if (!expect_analyzer(!!(d_Expression))) {if (NMib::NContract::fg_MibSafeCheck(DMibPFile, DMibPLine, #d_Expression, d_Message)) DMibPDebugBreak;}} while (false)
+#		define DMibFastCheck(d_Expression) \
+			do {if (!expect_analyzer(!!(d_Expression))) {DMibPDebugBreak; ::NMib::NContract::NPrivate::CNoReturn NoReturn; [[maybe_unused]] int x = 0; x = 1; ++x;}} while (false)
 		bool fg_MibSafeCheck(const ch8 *_pFile, int32 _Line, const ch8 *_pExpression, const ch8 *_pMessage) function_does_not_return_analyzer;
 		bool fg_MibSafeCheckSetThrowsException(bool _bThrowsException);
 #	else
