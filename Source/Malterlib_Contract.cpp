@@ -17,17 +17,17 @@ namespace NMib::NContract
 }
 
 void fg_LogViolation
-(
-	NMib::NStr::CStrNonTracked &_String,
-	const ch8 *_pType,
-	const ch8 *_pFile,
-	int32 _Line,
-	const ch8 *_pFunction,
-	const ch8 *_pVariables,
-	const ch8 *_pStatement,
-	bool _bCallstack,
-	const ch8 *_pClassName = 0
-)
+	(
+		NMib::NStr::CStrNonTracked &_String
+		, ch8 const *_pType
+		, ch8 const *_pFile
+		, int32 _Line
+		, ch8 const *_pFunction
+		, ch8 const *_pVariables
+		, ch8 const *_pStatement
+		, bool _bCallstack
+		, ch8 const *_pClassName = 0
+	)
 {
 	using namespace NMib::NStr;
 	_String += CStrNonTracked::CFormat("{} violation:" DMibNewLine) << _pType;
@@ -58,7 +58,7 @@ ch8 g_LastContractStatement[1024] = {0};
 ch8 g_LastContractDetailed[1024] = {0};
 bool g_LastContractValid = false;
 
-inline_never bool fg_FailContract(const ch8 *_pFile, int32 _Line, const ch8 *_pContractType, const ch8 *_pStatement, NMib::NStr::CStrNonTracked const *_pDetailed)
+inline_never bool fg_FailContract(ch8 const *_pFile, int32 _Line, ch8 const *_pContractType, ch8 const *_pStatement, NMib::NStr::CStrNonTracked const *_pDetailed)
 {
 	NMib::NStr::CStrNonTracked Message;
 	if (_pStatement)
@@ -140,9 +140,24 @@ namespace NMib::NContract
 		if (g_LastContractValid)
 		{
 			if (*g_LastContractStatement)
-				return NStr::CStrNonTracked::CFormat("{}({}): Contract violation: {} ({})" DMibNewLine "{}") << g_LastContractFile << g_LastContractLine << g_LastContractType << g_LastContractStatement << g_LastContractDetailed;
+			{
+				return NStr::CStrNonTracked::CFormat("{}({}): Contract violation: {} ({})" DMibNewLine "{}")
+					<< g_LastContractFile
+					<< g_LastContractLine
+					<< g_LastContractType
+					<< g_LastContractStatement
+					<< g_LastContractDetailed
+				;
+			}
 			else
-				return NStr::CStrNonTracked::CFormat("{}({}): Contract violation: {}" DMibNewLine "{}") << g_LastContractFile << g_LastContractLine << g_LastContractType << g_LastContractDetailed;
+			{
+				return NStr::CStrNonTracked::CFormat("{}({}): Contract violation: {}" DMibNewLine "{}")
+					<< g_LastContractFile
+					<< g_LastContractLine
+					<< g_LastContractType
+					<< g_LastContractDetailed
+				;
+			}
 		}
 		return NStr::CStrNonTracked();
 	}
@@ -150,7 +165,7 @@ namespace NMib::NContract
 
 	namespace NPrivate
 	{
-		constinit NStorage::TCAggregate<NThread::TCThreadLocal<TCAutoClearInt<bool,true>>, 64> g_Enabled = {DAggregateInit};
+		constinit NStorage::TCAggregate<NThread::TCThreadLocal<TCAutoClearInt<bool, true>>, 64> g_Enabled = {DAggregateInit};
 		bool g_bGlobalEnabled = true;
 
 		void fg_EnableContractsInThisThread(bool enabled)
@@ -218,18 +233,17 @@ namespace NMib::NContract
 			}
 
 			mutable NThread::CMutual m_Lock;
-			NFunction::TCFunction<void(CContractViolation const &)> m_fOnContractViolation;
+			NFunction::TCFunction<void (CContractViolation const &)> m_fOnContractViolation;
 		};
 
-		constinit NStorage::TCAggregate
-			<
-				NMib::NThread::TCThreadLocal<CContractLoggerThreadLocal, NMib::NMemory::CAllocator_Heap, NMib::NThread::EThreadLocalFlag_Inherit>
-			>
-			g_ContratLogger = {DAggregateInit}
+		constinit NStorage::TCAggregate<NMib::NThread::TCThreadLocal<CContractLoggerThreadLocal, NMib::NMemory::CAllocator_Heap, NMib::NThread::EThreadLocalFlag_Inherit>> g_ContratLogger =
+			{
+				DAggregateInit
+			}
 		;
 	}
 
-	NFunction::TCFunction<void(CContractViolation const &)> fg_SetContractLogger(NFunction::TCFunction<void(CContractViolation const &)> const &_ContractLogger)
+	NFunction::TCFunction<void (CContractViolation const &)> fg_SetContractLogger(NFunction::TCFunction<void (CContractViolation const &)> const &_ContractLogger)
 	{
 		auto &TreadLocal = **g_ContratLogger;
 		auto OldLogger = TreadLocal.m_fOnContractViolation;
@@ -240,19 +254,26 @@ namespace NMib::NContract
 	}
 
 #if defined DMibContract_AnyEnabled
-	NFunction::TCFunction<void(CContractViolation const &)> fg_SetContractLoggerThrowExceptions()
+	NFunction::TCFunction<void (CContractViolation const &)> fg_SetContractLoggerThrowExceptions()
 	{
 		using namespace NMib::NStr;
 		return fg_SetContractLogger
 			(
-				[] (CContractViolation const &_ContractViolation)
+				[](CContractViolation const &_ContractViolation)
 				{
 					using namespace NMib::NStr;
 					CStrNonTracked Message;
 					if (*_ContractViolation.f_GetClassName())
 					{
 						if (*_ContractViolation.f_GetVariables())
-							Message = CStrNonTracked::CFormat("{} in {} where:{}") << _ContractViolation.f_GetStatement() << _ContractViolation.f_GetClassName() << _ContractViolation.f_GetVariables();
+						{
+							Message
+								= CStrNonTracked::CFormat("{} in {} where:{}")
+								<< _ContractViolation.f_GetStatement()
+								<< _ContractViolation.f_GetClassName()
+								<< _ContractViolation.f_GetVariables()
+							;
+						}
 						else
 							Message = CStrNonTracked::CFormat("{} in {}") << _ContractViolation.f_GetStatement() << _ContractViolation.f_GetClassName();
 					}
@@ -264,13 +285,57 @@ namespace NMib::NContract
 							Message = CStrNonTracked::CFormat("{}") << _ContractViolation.f_GetStatement();
 					}
 					if (fg_StrCmp(_ContractViolation.f_GetType(), "Require") == 0)
-						throw CContractException_Require("CContractException_Require", _ContractViolation.f_GetFile(), _ContractViolation.f_GetLine(), _ContractViolation.f_GetFunction(), Message, true);
+					{
+						throw CContractException_Require
+							(
+								"CContractException_Require"
+								, _ContractViolation.f_GetFile()
+								, _ContractViolation.f_GetLine()
+								, _ContractViolation.f_GetFunction()
+								, Message
+								, true
+							)
+						;
+					}
 					else if (fg_StrCmp(_ContractViolation.f_GetType(), "Ensure") == 0)
-						throw CContractException_Ensure("CContractException_Ensure", _ContractViolation.f_GetFile(), _ContractViolation.f_GetLine(), _ContractViolation.f_GetFunction(), Message, true);
+					{
+						throw CContractException_Ensure
+							(
+								"CContractException_Ensure"
+								, _ContractViolation.f_GetFile()
+								, _ContractViolation.f_GetLine()
+								, _ContractViolation.f_GetFunction()
+								, Message
+								, true
+							)
+						;
+					}
 					else if (fg_StrCmp(_ContractViolation.f_GetType(), "Check") == 0)
-						throw CContractException_Check("CContractException_Check", _ContractViolation.f_GetFile(), _ContractViolation.f_GetLine(), _ContractViolation.f_GetFunction(), Message, true);
+					{
+						throw CContractException_Check
+							(
+								"CContractException_Check"
+								, _ContractViolation.f_GetFile()
+								, _ContractViolation.f_GetLine()
+								, _ContractViolation.f_GetFunction()
+								, Message
+								, true
+							)
+						;
+					}
 					else if (fg_StrCmp(_ContractViolation.f_GetType(), "NeverGetHere") == 0)
-						throw CContractException_NeverGetHere("CContractException_NeverGetHere", _ContractViolation.f_GetFile(), _ContractViolation.f_GetLine(), _ContractViolation.f_GetFunction(), Message, true);
+					{
+						throw CContractException_NeverGetHere
+							(
+								"CContractException_NeverGetHere"
+								, _ContractViolation.f_GetFile()
+								, _ContractViolation.f_GetLine()
+								, _ContractViolation.f_GetFunction()
+								, Message
+								, true
+							)
+						;
+					}
 					else
 						throw CContractException("CContractException", _ContractViolation.f_GetFile(), _ContractViolation.f_GetLine(), _ContractViolation.f_GetFunction(), Message, true);
 				}
@@ -282,57 +347,57 @@ namespace NMib::NContract
 	namespace NPrivate
 	{
 #ifdef DMibContractConfigure_RequireEnabled
-		bool fg_HandleRequireViolation(const ch8 *_pFile, int32 _Line, const ch8 *_pFunction, const ch8 *_pVariables, const ch8 *_pStatement,bool _bCallstack)
+		bool fg_HandleRequireViolation(ch8 const *_pFile, int32 _Line, ch8 const *_pFunction, ch8 const *_pVariables, ch8 const *_pStatement, bool _bCallstack)
 		{
 			if (!g_ContratLogger.f_WasDestructed() && !!(**g_ContratLogger).m_fOnContractViolation)
 			{
-				(**g_ContratLogger).m_fOnContractViolation(CContractViolation("Require",_pFile,_Line,_pFunction,_pVariables,_pStatement,false,""));
+				(**g_ContratLogger).m_fOnContractViolation(CContractViolation("Require", _pFile, _Line, _pFunction, _pVariables, _pStatement, false, ""));
 				return false;
 			}
 			NStr::CStrNonTracked String = DMibNewLine;
-			fg_LogViolation(String,"Require",_pFile,_Line,_pFunction,_pVariables,_pStatement,_bCallstack);
+			fg_LogViolation(String, "Require", _pFile, _Line, _pFunction, _pVariables, _pStatement, _bCallstack);
 			DMibTrace("{}" DMibNewLine, String);
 			return fg_FailContract(_pFile, _Line, "DMibRequire", _pStatement, &String);
 		}
 #endif
 #ifdef DMibContractConfigure_EnsureEnabled
-		bool fg_HandleEnsureViolation(const ch8 *_pFile, int32 _Line, const ch8 *_pFunction, const ch8 *_pVariables, const ch8 *_pStatement,bool _bCallstack)
+		bool fg_HandleEnsureViolation(ch8 const *_pFile, int32 _Line, ch8 const *_pFunction, ch8 const *_pVariables, ch8 const *_pStatement, bool _bCallstack)
 		{
 			if (!g_ContratLogger.f_WasDestructed() && !!(**g_ContratLogger).m_fOnContractViolation)
 			{
-				(**g_ContratLogger).m_fOnContractViolation(CContractViolation("Ensure",_pFile,_Line,_pFunction,_pVariables,_pStatement,false,""));
+				(**g_ContratLogger).m_fOnContractViolation(CContractViolation("Ensure", _pFile, _Line, _pFunction, _pVariables, _pStatement, false, ""));
 				return false;
 			}
 			NStr::CStrNonTracked String = DMibNewLine;
-			fg_LogViolation(String,"Ensure",_pFile,_Line,_pFunction,_pVariables,_pStatement,_bCallstack);
+			fg_LogViolation(String, "Ensure", _pFile, _Line, _pFunction, _pVariables, _pStatement, _bCallstack);
 			DMibTrace("{}" DMibNewLine, String);
 			return fg_FailContract(_pFile, _Line, "DMibEnsure", _pStatement, &String);
 		}
 #endif
 #ifdef DMibContractConfigure_CheckEnabled
-		bool fg_HandleCheckViolation(const ch8 *_pFile, int32 _Line, const ch8 *_pFunction, const ch8 *_pVariables, const ch8 *_pStatement,bool _bCallstack)
+		bool fg_HandleCheckViolation(ch8 const *_pFile, int32 _Line, ch8 const *_pFunction, ch8 const *_pVariables, ch8 const *_pStatement, bool _bCallstack)
 		{
 			if (!g_ContratLogger.f_WasDestructed() && !!(**g_ContratLogger).m_fOnContractViolation)
 			{
-				(**g_ContratLogger).m_fOnContractViolation(CContractViolation("Check",_pFile,_Line,_pFunction,_pVariables,_pStatement,false,""));
+				(**g_ContratLogger).m_fOnContractViolation(CContractViolation("Check", _pFile, _Line, _pFunction, _pVariables, _pStatement, false, ""));
 				return false;
 			}
 			NStr::CStrNonTracked String = DMibNewLine;
-			fg_LogViolation(String,"Check",_pFile,_Line,_pFunction,_pVariables,_pStatement,_bCallstack);
+			fg_LogViolation(String, "Check", _pFile, _Line, _pFunction, _pVariables, _pStatement, _bCallstack);
 			DMibTrace("{}" DMibNewLine, String);
 			return fg_FailContract(_pFile, _Line, "DMibCheck", _pStatement, &String);
 		}
 #endif
 #ifdef DMibContractConfigure_NeverGetHereEnabled
-		bool fg_HandleNeverGetHereViolation(const ch8 *_pFile, int32 _Line, const ch8 *_pFunction, const ch8 *_pVariables,bool _bCallstack)
+		bool fg_HandleNeverGetHereViolation(ch8 const *_pFile, int32 _Line, ch8 const *_pFunction, ch8 const *_pVariables, bool _bCallstack)
 		{
 			if (!g_ContratLogger.f_WasDestructed() && !!(**g_ContratLogger).m_fOnContractViolation)
 			{
-				(**g_ContratLogger).m_fOnContractViolation(CContractViolation("NeverGetHere",_pFile,_Line,_pFunction,_pVariables,"",false,""));
+				(**g_ContratLogger).m_fOnContractViolation(CContractViolation("NeverGetHere", _pFile, _Line, _pFunction, _pVariables, "", false, ""));
 				return false;
 			}
 			NStr::CStrNonTracked String = DMibNewLine;
-			fg_LogViolation(String,"NeverGetHere",_pFile,_Line,_pFunction,_pVariables,0,_bCallstack);
+			fg_LogViolation(String, "NeverGetHere", _pFile, _Line, _pFunction, _pVariables, 0, _bCallstack);
 			DMibTrace("{}" DMibNewLine, String);
 			return fg_FailContract(_pFile, _Line, "DMibNeverGetHere", 0, &String);
 		}
