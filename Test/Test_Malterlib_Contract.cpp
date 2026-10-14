@@ -42,7 +42,7 @@ namespace
 
 		CViolationRecord m_Violation;
 
-		NMib::NFunction::TCFunction<void(CContractViolation const &)> fp_InstallRecordingLogger()
+		NMib::NFunction::TCFunction<void (CContractViolation const &)> fp_InstallRecordingLogger()
 		{
 			m_Violation.f_Reset();
 			return fg_SetContractLogger
@@ -71,7 +71,11 @@ namespace
 				DMibTestCategory("Passing condition does not trigger")
 				{
 					auto fOldLogger = fp_InstallRecordingLogger();
-					auto Restore = NMib::g_OnScopeExit / [&] { fg_SetContractLogger(fOldLogger); };
+					auto Restore = NMib::g_OnScopeExit / [&]
+						{
+							fg_SetContractLogger(fOldLogger);
+						}
+					;
 
 					DMibRequire(true);
 					DMibExpectFalse(m_Violation.m_bTriggered);
@@ -80,7 +84,11 @@ namespace
 				DMibTestCategory("Failing condition triggers violation")
 				{
 					auto fOldLogger = fp_InstallRecordingLogger();
-					auto Restore = NMib::g_OnScopeExit / [&] { fg_SetContractLogger(fOldLogger); };
+					auto Restore = NMib::g_OnScopeExit / [&]
+						{
+							fg_SetContractLogger(fOldLogger);
+						}
+					;
 
 					DMibRequire(false);
 					DMibExpectTrue(m_Violation.m_bTriggered);
@@ -91,7 +99,11 @@ namespace
 				DMibTestCategory("Expression condition captures statement")
 				{
 					auto fOldLogger = fp_InstallRecordingLogger();
-					auto Restore = NMib::g_OnScopeExit / [&] { fg_SetContractLogger(fOldLogger); };
+					auto Restore = NMib::g_OnScopeExit / [&]
+						{
+							fg_SetContractLogger(fOldLogger);
+						}
+					;
 
 					int32 x = 5;
 					DMibRequire(x > 10);
@@ -102,7 +114,11 @@ namespace
 				DMibTestCategory("Variable logging captures name and value")
 				{
 					auto fOldLogger = fp_InstallRecordingLogger();
-					auto Restore = NMib::g_OnScopeExit / [&] { fg_SetContractLogger(fOldLogger); };
+					auto Restore = NMib::g_OnScopeExit / [&]
+						{
+							fg_SetContractLogger(fOldLogger);
+						}
+					;
 
 					int32 TestVar = 42;
 					DMibRequire(false)(TestVar);
@@ -113,7 +129,11 @@ namespace
 				DMibTestCategory("String note logging")
 				{
 					auto fOldLogger = fp_InstallRecordingLogger();
-					auto Restore = NMib::g_OnScopeExit / [&] { fg_SetContractLogger(fOldLogger); };
+					auto Restore = NMib::g_OnScopeExit / [&]
+						{
+							fg_SetContractLogger(fOldLogger);
+						}
+					;
 
 					DMibRequire(false)("Custom note message");
 					DMibExpectTrue(m_Violation.m_bTriggered);
@@ -123,7 +143,11 @@ namespace
 				DMibTestCategory("Multiple variable logging")
 				{
 					auto fOldLogger = fp_InstallRecordingLogger();
-					auto Restore = NMib::g_OnScopeExit / [&] { fg_SetContractLogger(fOldLogger); };
+					auto Restore = NMib::g_OnScopeExit / [&]
+						{
+							fg_SetContractLogger(fOldLogger);
+						}
+					;
 
 					int32 TestVar = 5;
 					int32 TestVar2 = 7;
@@ -140,7 +164,11 @@ namespace
 				DMibTestCategory("Passing condition does not trigger")
 				{
 					auto fOldLogger = fp_InstallRecordingLogger();
-					auto Restore = NMib::g_OnScopeExit / [&] { fg_SetContractLogger(fOldLogger); };
+					auto Restore = NMib::g_OnScopeExit / [&]
+						{
+							fg_SetContractLogger(fOldLogger);
+						}
+					;
 
 					DMibEnsure(true);
 					DMibExpectFalse(m_Violation.m_bTriggered);
@@ -149,7 +177,11 @@ namespace
 				DMibTestCategory("Failing condition triggers violation")
 				{
 					auto fOldLogger = fp_InstallRecordingLogger();
-					auto Restore = NMib::g_OnScopeExit / [&] { fg_SetContractLogger(fOldLogger); };
+					auto Restore = NMib::g_OnScopeExit / [&]
+						{
+							fg_SetContractLogger(fOldLogger);
+						}
+					;
 
 					DMibEnsure(false);
 					DMibExpectTrue(m_Violation.m_bTriggered);
@@ -160,7 +192,11 @@ namespace
 				DMibTestCategory("Variable logging captures name and value")
 				{
 					auto fOldLogger = fp_InstallRecordingLogger();
-					auto Restore = NMib::g_OnScopeExit / [&] { fg_SetContractLogger(fOldLogger); };
+					auto Restore = NMib::g_OnScopeExit / [&]
+						{
+							fg_SetContractLogger(fOldLogger);
+						}
+					;
 
 					int32 Result = -1;
 					DMibEnsure(Result >= 0)(Result);
@@ -176,7 +212,11 @@ namespace
 				DMibTestCategory("Passing condition does not trigger")
 				{
 					auto fOldLogger = fp_InstallRecordingLogger();
-					auto Restore = NMib::g_OnScopeExit / [&] { fg_SetContractLogger(fOldLogger); };
+					auto Restore = NMib::g_OnScopeExit / [&]
+						{
+							fg_SetContractLogger(fOldLogger);
+						}
+					;
 
 					DMibCheck(true);
 					DMibExpectFalse(m_Violation.m_bTriggered);
@@ -185,7 +225,11 @@ namespace
 				DMibTestCategory("Failing condition triggers violation")
 				{
 					auto fOldLogger = fp_InstallRecordingLogger();
-					auto Restore = NMib::g_OnScopeExit / [&] { fg_SetContractLogger(fOldLogger); };
+					auto Restore = NMib::g_OnScopeExit / [&]
+						{
+							fg_SetContractLogger(fOldLogger);
+						}
+					;
 
 					DMibCheck(false);
 					DMibExpectTrue(m_Violation.m_bTriggered);
@@ -196,7 +240,11 @@ namespace
 				DMibTestCategory("Mixed variable and note logging")
 				{
 					auto fOldLogger = fp_InstallRecordingLogger();
-					auto Restore = NMib::g_OnScopeExit / [&] { fg_SetContractLogger(fOldLogger); };
+					auto Restore = NMib::g_OnScopeExit / [&]
+						{
+							fg_SetContractLogger(fOldLogger);
+						}
+					;
 
 					int32 Value = 99;
 					DMibCheck(false)(Value)("Consistency check failed");
@@ -212,7 +260,11 @@ namespace
 				DMibTestCategory("Triggers violation when reached")
 				{
 					auto fOldLogger = fp_InstallRecordingLogger();
-					auto Restore = NMib::g_OnScopeExit / [&] { fg_SetContractLogger(fOldLogger); };
+					auto Restore = NMib::g_OnScopeExit / [&]
+						{
+							fg_SetContractLogger(fOldLogger);
+						}
+					;
 
 					DMibNeverGetHere;
 					DMibExpectTrue(m_Violation.m_bTriggered);
@@ -227,7 +279,11 @@ namespace
 				DMibTestCategory("OldDef captures initial value")
 				{
 					auto fOldLogger = fp_InstallRecordingLogger();
-					auto Restore = NMib::g_OnScopeExit / [&] { fg_SetContractLogger(fOldLogger); };
+					auto Restore = NMib::g_OnScopeExit / [&]
+						{
+							fg_SetContractLogger(fOldLogger);
+						}
+					;
 
 					int32 x = 3;
 					DMibContractOldDef(int32, x);
@@ -244,7 +300,11 @@ namespace
 				DMibTestCategory("OldDef detects postcondition failure")
 				{
 					auto fOldLogger = fp_InstallRecordingLogger();
-					auto Restore = NMib::g_OnScopeExit / [&] { fg_SetContractLogger(fOldLogger); };
+					auto Restore = NMib::g_OnScopeExit / [&]
+						{
+							fg_SetContractLogger(fOldLogger);
+						}
+					;
 
 					int32 x = 10;
 					DMibContractOldDef(int32, x);
@@ -273,7 +333,11 @@ namespace
 				DMibTestCategory("Disable prevents violations")
 				{
 					auto fOldLogger = fp_InstallRecordingLogger();
-					auto Restore = NMib::g_OnScopeExit / [&] { fg_SetContractLogger(fOldLogger); };
+					auto Restore = NMib::g_OnScopeExit / [&]
+						{
+							fg_SetContractLogger(fOldLogger);
+						}
+					;
 
 					{
 						CEnableContracts DisableScope(false);
@@ -285,7 +349,11 @@ namespace
 				DMibTestCategory("Re-enable after scope exit")
 				{
 					auto fOldLogger = fp_InstallRecordingLogger();
-					auto Restore = NMib::g_OnScopeExit / [&] { fg_SetContractLogger(fOldLogger); };
+					auto Restore = NMib::g_OnScopeExit / [&]
+						{
+							fg_SetContractLogger(fOldLogger);
+						}
+					;
 
 					{
 						CEnableContracts DisableScope(false);
@@ -300,7 +368,11 @@ namespace
 				DMibTestCategory("Nested enable and disable")
 				{
 					auto fOldLogger = fp_InstallRecordingLogger();
-					auto Restore = NMib::g_OnScopeExit / [&] { fg_SetContractLogger(fOldLogger); };
+					auto Restore = NMib::g_OnScopeExit / [&]
+						{
+							fg_SetContractLogger(fOldLogger);
+						}
+					;
 
 					{
 						CEnableContracts OuterDisable(false);
@@ -330,7 +402,11 @@ namespace
 				DMibTestCategory("Require throws CContractException_Require")
 				{
 					auto fOldLogger = fg_SetContractLoggerThrowExceptions();
-					auto Restore = NMib::g_OnScopeExit / [&] { fg_SetContractLogger(fOldLogger); };
+					auto Restore = NMib::g_OnScopeExit / [&]
+						{
+							fg_SetContractLogger(fOldLogger);
+						}
+					;
 
 					bool bCaught = false;
 					try
@@ -349,7 +425,11 @@ namespace
 				DMibTestCategory("Ensure throws CContractException_Ensure")
 				{
 					auto fOldLogger = fg_SetContractLoggerThrowExceptions();
-					auto Restore = NMib::g_OnScopeExit / [&] { fg_SetContractLogger(fOldLogger); };
+					auto Restore = NMib::g_OnScopeExit / [&]
+						{
+							fg_SetContractLogger(fOldLogger);
+						}
+					;
 
 					bool bCaught = false;
 					try
@@ -368,7 +448,11 @@ namespace
 				DMibTestCategory("Check throws CContractException_Check")
 				{
 					auto fOldLogger = fg_SetContractLoggerThrowExceptions();
-					auto Restore = NMib::g_OnScopeExit / [&] { fg_SetContractLogger(fOldLogger); };
+					auto Restore = NMib::g_OnScopeExit / [&]
+						{
+							fg_SetContractLogger(fOldLogger);
+						}
+					;
 
 					bool bCaught = false;
 					try
@@ -387,7 +471,11 @@ namespace
 				DMibTestCategory("NeverGetHere throws CContractException_NeverGetHere")
 				{
 					auto fOldLogger = fg_SetContractLoggerThrowExceptions();
-					auto Restore = NMib::g_OnScopeExit / [&] { fg_SetContractLogger(fOldLogger); };
+					auto Restore = NMib::g_OnScopeExit / [&]
+						{
+							fg_SetContractLogger(fOldLogger);
+						}
+					;
 
 					bool bCaught = false;
 					try
@@ -406,7 +494,11 @@ namespace
 				DMibTestCategory("All contract exceptions derive from CContractException")
 				{
 					auto fOldLogger = fg_SetContractLoggerThrowExceptions();
-					auto Restore = NMib::g_OnScopeExit / [&] { fg_SetContractLogger(fOldLogger); };
+					auto Restore = NMib::g_OnScopeExit / [&]
+						{
+							fg_SetContractLogger(fOldLogger);
+						}
+					;
 
 					bool bCaughtBase = false;
 					try
@@ -429,7 +521,11 @@ namespace
 				DMibTestCategory("Violation captures source location")
 				{
 					auto fOldLogger = fp_InstallRecordingLogger();
-					auto Restore = NMib::g_OnScopeExit / [&] { fg_SetContractLogger(fOldLogger); };
+					auto Restore = NMib::g_OnScopeExit / [&]
+						{
+							fg_SetContractLogger(fOldLogger);
+						}
+					;
 
 					DMibCheck(false);
 					DMibExpectTrue(m_Violation.m_bTriggered);
@@ -440,7 +536,11 @@ namespace
 				DMibTestCategory("ComposeLogMessage produces output")
 				{
 					auto fOldLogger = fp_InstallRecordingLogger();
-					auto Restore = NMib::g_OnScopeExit / [&] { fg_SetContractLogger(fOldLogger); };
+					auto Restore = NMib::g_OnScopeExit / [&]
+						{
+							fg_SetContractLogger(fOldLogger);
+						}
+					;
 
 					DMibCheck(false);
 					DMibExpectTrue(m_Violation.m_bTriggered);
@@ -450,7 +550,11 @@ namespace
 				DMibTestCategory("BugId is consistent for same statement")
 				{
 					auto fOldLogger = fp_InstallRecordingLogger();
-					auto Restore = NMib::g_OnScopeExit / [&] { fg_SetContractLogger(fOldLogger); };
+					auto Restore = NMib::g_OnScopeExit / [&]
+						{
+							fg_SetContractLogger(fOldLogger);
+						}
+					;
 
 					DMibCheck(false);
 					uint32 FirstBugId = m_Violation.m_BugId;
@@ -466,7 +570,11 @@ namespace
 				DMibTestCategory("Different statements produce different BugIds")
 				{
 					auto fOldLogger = fp_InstallRecordingLogger();
-					auto Restore = NMib::g_OnScopeExit / [&] { fg_SetContractLogger(fOldLogger); };
+					auto Restore = NMib::g_OnScopeExit / [&]
+						{
+							fg_SetContractLogger(fOldLogger);
+						}
+					;
 
 					DMibCheck(false);
 					uint32 FirstBugId = m_Violation.m_BugId;
@@ -492,7 +600,11 @@ namespace
 							}
 						)
 					;
-					auto Restore = NMib::g_OnScopeExit / [&] { fg_SetContractLogger(fOldLogger); };
+					auto Restore = NMib::g_OnScopeExit / [&]
+						{
+							fg_SetContractLogger(fOldLogger);
+						}
+					;
 
 					DMibCheck(false);
 					DMibExpectTrue(bCustomCalled);
@@ -510,7 +622,11 @@ namespace
 							}
 						)
 					;
-					auto Restore = NMib::g_OnScopeExit / [&] { fg_SetContractLogger(fOldLogger); };
+					auto Restore = NMib::g_OnScopeExit / [&]
+						{
+							fg_SetContractLogger(fOldLogger);
+						}
+					;
 
 					DMibRequire(false);
 					DMibExpect(ReceivedType, ==, CStrNonTracked("Require"));
@@ -539,7 +655,11 @@ namespace
 							}
 						)
 					;
-					auto RestoreOriginal = NMib::g_OnScopeExit / [&] { fg_SetContractLogger(fOriginal); };
+					auto RestoreOriginal = NMib::g_OnScopeExit / [&]
+						{
+							fg_SetContractLogger(fOriginal);
+						}
+					;
 
 					auto fFirst = fg_SetContractLogger
 						(
