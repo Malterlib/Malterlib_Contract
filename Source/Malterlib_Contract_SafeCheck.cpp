@@ -47,14 +47,21 @@ namespace NMib::NContract
 		if (g_LastSafeCheckValid)
 		{
 			if (*g_LastSafeCheckMessage)
-				return NStr::CStrNonTracked::CFormat("{}({}): SafeCheck failed: {} '{}'" DMibNewLine) << g_LastSafeCheckFile << g_LastSafeCheckLine << g_LastSafeCheckExpression << g_LastSafeCheckMessage;
+			{
+				return NStr::CStrNonTracked::CFormat("{}({}): SafeCheck failed: {} '{}'" DMibNewLine)
+					<< g_LastSafeCheckFile
+					<< g_LastSafeCheckLine
+					<< g_LastSafeCheckExpression
+					<< g_LastSafeCheckMessage
+				;
+			}
 			else
 				return NStr::CStrNonTracked::CFormat("{}({}): SafeCheck failed: {}" DMibNewLine) << g_LastSafeCheckFile << g_LastSafeCheckLine << g_LastSafeCheckExpression;
 		}
 		return NStr::CStrNonTracked();
 	}
 
-	inline_never bool fg_MibSafeCheck(const ch8 *_pFile, int32 _Line, const ch8 *_pExpression, const ch8 *_pMessage) function_does_not_return_analyzer
+	inline_never bool fg_MibSafeCheck(ch8 const *_pFile, int32 _Line, ch8 const *_pExpression, ch8 const *_pMessage) function_does_not_return_analyzer
 	{
 		if (!g_SafeCheckThrowsException.f_WasDestructed() && (**g_SafeCheckThrowsException).m_bThrowsException.f_Load(NAtomic::gc_MemoryOrder_Relaxed))
 		{
