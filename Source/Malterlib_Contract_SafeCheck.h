@@ -54,6 +54,11 @@ namespace NMib::NContract
 #	define DMibFastCheck(d_Expression) (void)0
 #endif
 
+	// A fact the malterlib-* clang-tidy checks take as true where it is written, like that a value isn't zero, also in the
+	// configurations that compile DMibFastCheck out. The expression is never evaluated, so it changes neither the code nor
+	// what the optimizer assumes, and a wrong one only misleads the checks. It must compile in every configuration.
+#define DMibAnalyzerAssume(d_Expression) static_cast<void>(sizeof(!!(d_Expression)))
+
 #ifndef DMibPNoShortCuts
 #	define DSafeCheck DMibSafeCheck
 #	define DFastCheck DMibFastCheck
