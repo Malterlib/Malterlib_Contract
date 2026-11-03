@@ -40,23 +40,23 @@ namespace
 			}
 		};
 
-		CViolationRecord m_Violation;
+		CViolationRecord mp_Violation;
 
 		NMib::NFunction::TCFunction<void (CContractViolation const &_ContractViolation)> fp_InstallRecordingLogger()
 		{
-			m_Violation.f_Reset();
+			mp_Violation.f_Reset();
 			return fg_SetContractLogger
 				(
 					[this](CContractViolation const &_Violation)
 					{
-						m_Violation.m_bTriggered = true;
-						m_Violation.m_Type = _Violation.f_GetType();
-						m_Violation.m_Statement = _Violation.f_GetStatement();
-						m_Violation.m_Variables = _Violation.f_GetVariables();
-						m_Violation.m_Function = _Violation.f_GetFunction();
-						m_Violation.m_Line = _Violation.f_GetLine();
-						m_Violation.m_LogMessage = _Violation.f_ComposeLogMessage();
-						m_Violation.m_BugId = _Violation.f_BugId();
+						mp_Violation.m_bTriggered = true;
+						mp_Violation.m_Type = _Violation.f_GetType();
+						mp_Violation.m_Statement = _Violation.f_GetStatement();
+						mp_Violation.m_Variables = _Violation.f_GetVariables();
+						mp_Violation.m_Function = _Violation.f_GetFunction();
+						mp_Violation.m_Line = _Violation.f_GetLine();
+						mp_Violation.m_LogMessage = _Violation.f_ComposeLogMessage();
+						mp_Violation.m_BugId = _Violation.f_BugId();
 					}
 				)
 			;
@@ -78,7 +78,7 @@ namespace
 					;
 
 					DMibRequire(true);
-					DMibExpectFalse(m_Violation.m_bTriggered);
+					DMibExpectFalse(mp_Violation.m_bTriggered);
 				};
 
 				DMibTestCategory("Failing condition triggers violation")
@@ -91,9 +91,9 @@ namespace
 					;
 
 					DMibRequire(false);
-					DMibExpectTrue(m_Violation.m_bTriggered);
-					DMibExpect(m_Violation.m_Type, ==, CStrNonTracked("Require"));
-					DMibExpect(m_Violation.m_Statement, ==, CStrNonTracked("false"));
+					DMibExpectTrue(mp_Violation.m_bTriggered);
+					DMibExpect(mp_Violation.m_Type, ==, CStrNonTracked("Require"));
+					DMibExpect(mp_Violation.m_Statement, ==, CStrNonTracked("false"));
 				};
 
 				DMibTestCategory("Expression condition captures statement")
@@ -105,10 +105,10 @@ namespace
 						}
 					;
 
-					int32 x = 5;
-					DMibRequire(x > 10);
-					DMibExpectTrue(m_Violation.m_bTriggered);
-					DMibExpect(m_Violation.m_Statement, ==, CStrNonTracked("x > 10"));
+					int32 Value = 5;
+					DMibRequire(Value > 10);
+					DMibExpectTrue(mp_Violation.m_bTriggered);
+					DMibExpect(mp_Violation.m_Statement, ==, CStrNonTracked("Value > 10"));
 				};
 
 				DMibTestCategory("Variable logging captures name and value")
@@ -122,8 +122,8 @@ namespace
 
 					int32 TestVar = 42;
 					DMibRequire(false)(TestVar);
-					DMibExpectTrue(m_Violation.m_bTriggered);
-					DMibExpect(m_Violation.m_Variables, ==, CStrNonTracked::CFormat("{\n}    TestVar = 42").f_GetStr());
+					DMibExpectTrue(mp_Violation.m_bTriggered);
+					DMibExpect(mp_Violation.m_Variables, ==, CStrNonTracked::CFormat("{\n}    TestVar = 42").f_GetStr());
 				};
 
 				DMibTestCategory("String note logging")
@@ -136,8 +136,8 @@ namespace
 					;
 
 					DMibRequire(false)("Custom note message");
-					DMibExpectTrue(m_Violation.m_bTriggered);
-					DMibExpect(m_Violation.m_Variables, ==, CStrNonTracked::CFormat("{\n}    note: 'Custom note message'").f_GetStr());
+					DMibExpectTrue(mp_Violation.m_bTriggered);
+					DMibExpect(mp_Violation.m_Variables, ==, CStrNonTracked::CFormat("{\n}    note: 'Custom note message'").f_GetStr());
 				};
 
 				DMibTestCategory("Multiple variable logging")
@@ -152,8 +152,8 @@ namespace
 					int32 TestVar = 5;
 					int32 TestVar2 = 7;
 					DMibRequire(false)(TestVar)(TestVar2);
-					DMibExpectTrue(m_Violation.m_bTriggered);
-					DMibExpect(m_Violation.m_Variables, ==, CStrNonTracked::CFormat("{\n}    TestVar = 5{\n}    TestVar2 = 7").f_GetStr());
+					DMibExpectTrue(mp_Violation.m_bTriggered);
+					DMibExpect(mp_Violation.m_Variables, ==, CStrNonTracked::CFormat("{\n}    TestVar = 5{\n}    TestVar2 = 7").f_GetStr());
 				};
 			};
 #endif
@@ -171,7 +171,7 @@ namespace
 					;
 
 					DMibEnsure(true);
-					DMibExpectFalse(m_Violation.m_bTriggered);
+					DMibExpectFalse(mp_Violation.m_bTriggered);
 				};
 
 				DMibTestCategory("Failing condition triggers violation")
@@ -184,9 +184,9 @@ namespace
 					;
 
 					DMibEnsure(false);
-					DMibExpectTrue(m_Violation.m_bTriggered);
-					DMibExpect(m_Violation.m_Type, ==, CStrNonTracked("Ensure"));
-					DMibExpect(m_Violation.m_Statement, ==, CStrNonTracked("false"));
+					DMibExpectTrue(mp_Violation.m_bTriggered);
+					DMibExpect(mp_Violation.m_Type, ==, CStrNonTracked("Ensure"));
+					DMibExpect(mp_Violation.m_Statement, ==, CStrNonTracked("false"));
 				};
 
 				DMibTestCategory("Variable logging captures name and value")
@@ -200,8 +200,8 @@ namespace
 
 					int32 Result = -1;
 					DMibEnsure(Result >= 0)(Result);
-					DMibExpectTrue(m_Violation.m_bTriggered);
-					DMibExpect(m_Violation.m_Variables, ==, CStrNonTracked::CFormat("{\n}    Result = -1").f_GetStr());
+					DMibExpectTrue(mp_Violation.m_bTriggered);
+					DMibExpect(mp_Violation.m_Variables, ==, CStrNonTracked::CFormat("{\n}    Result = -1").f_GetStr());
 				};
 			};
 #endif
@@ -219,7 +219,7 @@ namespace
 					;
 
 					DMibCheck(true);
-					DMibExpectFalse(m_Violation.m_bTriggered);
+					DMibExpectFalse(mp_Violation.m_bTriggered);
 				};
 
 				DMibTestCategory("Failing condition triggers violation")
@@ -232,9 +232,9 @@ namespace
 					;
 
 					DMibCheck(false);
-					DMibExpectTrue(m_Violation.m_bTriggered);
-					DMibExpect(m_Violation.m_Type, ==, CStrNonTracked("Check"));
-					DMibExpect(m_Violation.m_Statement, ==, CStrNonTracked("false"));
+					DMibExpectTrue(mp_Violation.m_bTriggered);
+					DMibExpect(mp_Violation.m_Type, ==, CStrNonTracked("Check"));
+					DMibExpect(mp_Violation.m_Statement, ==, CStrNonTracked("false"));
 				};
 
 				DMibTestCategory("Mixed variable and note logging")
@@ -248,8 +248,8 @@ namespace
 
 					int32 Value = 99;
 					DMibCheck(false)(Value)("Consistency check failed");
-					DMibExpectTrue(m_Violation.m_bTriggered);
-					DMibExpect(m_Violation.m_Variables, ==, CStrNonTracked::CFormat("{\n}    Value = 99{\n}    note: 'Consistency check failed'").f_GetStr());
+					DMibExpectTrue(mp_Violation.m_bTriggered);
+					DMibExpect(mp_Violation.m_Variables, ==, CStrNonTracked::CFormat("{\n}    Value = 99{\n}    note: 'Consistency check failed'").f_GetStr());
 				};
 			};
 #endif
@@ -267,8 +267,8 @@ namespace
 					;
 
 					DMibNeverGetHere;
-					DMibExpectTrue(m_Violation.m_bTriggered);
-					DMibExpect(m_Violation.m_Type, ==, CStrNonTracked("NeverGetHere"));
+					DMibExpectTrue(mp_Violation.m_bTriggered);
+					DMibExpect(mp_Violation.m_Type, ==, CStrNonTracked("NeverGetHere"));
 				};
 			};
 #endif
@@ -285,16 +285,16 @@ namespace
 						}
 					;
 
-					int32 x = 3;
-					DMibContractOldDef(int32, x);
-					DMibExpect(DMibContractOld(x), ==, 3);
-					x = 10;
+					int32 Value = 3;
+					DMibContractOldDef(int32, Value);
+					DMibExpect(DMibContractOld(Value), ==, 3);
+					Value = 10;
 					// Old value should still be 3 after modification
-					int32 OldValue = DMibContractOld(x);
+					int32 OldValue = DMibContractOld(Value);
 					DMibExpect(OldValue, ==, 3);
 
-					DMibEnsure(DMibContractOld(x) < x);
-					DMibExpectFalse(m_Violation.m_bTriggered);
+					DMibEnsure(DMibContractOld(Value) < Value);
+					DMibExpectFalse(mp_Violation.m_bTriggered);
 				};
 
 				DMibTestCategory("OldDef detects postcondition failure")
@@ -306,21 +306,21 @@ namespace
 						}
 					;
 
-					int32 x = 10;
-					DMibContractOldDef(int32, x);
-					x = 5;
-					DMibEnsure(DMibContractOld(x) < x);
-					DMibExpectTrue(m_Violation.m_bTriggered);
-					DMibExpect(m_Violation.m_Type, ==, CStrNonTracked("Ensure"));
+					int32 Value = 10;
+					DMibContractOldDef(int32, Value);
+					Value = 5;
+					DMibEnsure(DMibContractOld(Value) < Value);
+					DMibExpectTrue(mp_Violation.m_bTriggered);
+					DMibExpect(mp_Violation.m_Type, ==, CStrNonTracked("Ensure"));
 				};
 
 				DMibTestCategory("OldExpr captures expression result")
 				{
-					int32 x = 5;
-					DMibContractOldExpr(int32, DoubleX, x * 2);
+					int32 Value = 5;
+					DMibContractOldExpr(int32, DoubleX, Value * 2);
 					DMibExpect(DMibContractOld(DoubleX), ==, 10);
-					x = 100;
-					// Old expression value should still be 10 after modifying x
+					Value = 100;
+					// Old expression value should still be 10 after modifying Value
 					int32 OldDoubleX = DMibContractOld(DoubleX);
 					DMibExpect(OldDoubleX, ==, 10);
 				};
@@ -342,7 +342,7 @@ namespace
 					{
 						CEnableContracts DisableScope(false);
 						DMibCheck(false);
-						DMibExpectFalse(m_Violation.m_bTriggered);
+						DMibExpectFalse(mp_Violation.m_bTriggered);
 					}
 				};
 
@@ -358,11 +358,11 @@ namespace
 					{
 						CEnableContracts DisableScope(false);
 						DMibCheck(false);
-						DMibExpectFalse(m_Violation.m_bTriggered);
+						DMibExpectFalse(mp_Violation.m_bTriggered);
 					}
 
 					DMibCheck(false);
-					DMibExpectTrue(m_Violation.m_bTriggered);
+					DMibExpectTrue(mp_Violation.m_bTriggered);
 				};
 
 				DMibTestCategory("Nested enable and disable")
@@ -377,18 +377,18 @@ namespace
 					{
 						CEnableContracts OuterDisable(false);
 						DMibCheck(false);
-						bool bTriggeredWhileDisabled = m_Violation.m_bTriggered;
+						bool bTriggeredWhileDisabled = mp_Violation.m_bTriggered;
 						DMibExpectFalse(bTriggeredWhileDisabled);
 
 						{
 							CEnableContracts InnerEnable(true);
 							DMibCheck(false);
-							DMibExpectTrue(m_Violation.m_bTriggered);
+							DMibExpectTrue(mp_Violation.m_bTriggered);
 						}
 
-						m_Violation.f_Reset();
+						mp_Violation.f_Reset();
 						DMibCheck(false);
-						bool bTriggeredAfterReDisable = m_Violation.m_bTriggered;
+						bool bTriggeredAfterReDisable = mp_Violation.m_bTriggered;
 						DMibExpectFalse(bTriggeredAfterReDisable);
 					}
 				};
@@ -528,9 +528,9 @@ namespace
 					;
 
 					DMibCheck(false);
-					DMibExpectTrue(m_Violation.m_bTriggered);
-					DMibExpectTrue(m_Violation.m_Line > 0);
-					DMibExpectTrue(m_Violation.m_Function.f_GetLen() > 0);
+					DMibExpectTrue(mp_Violation.m_bTriggered);
+					DMibExpectTrue(mp_Violation.m_Line > 0);
+					DMibExpectTrue(mp_Violation.m_Function.f_GetLen() > 0);
 				};
 
 				DMibTestCategory("ComposeLogMessage produces output")
@@ -543,8 +543,8 @@ namespace
 					;
 
 					DMibCheck(false);
-					DMibExpectTrue(m_Violation.m_bTriggered);
-					DMibExpectTrue(m_Violation.m_LogMessage.f_GetLen() > 0);
+					DMibExpectTrue(mp_Violation.m_bTriggered);
+					DMibExpectTrue(mp_Violation.m_LogMessage.f_GetLen() > 0);
 				};
 
 				DMibTestCategory("BugId is consistent for same statement")
@@ -557,12 +557,12 @@ namespace
 					;
 
 					DMibCheck(false);
-					uint32 FirstBugId = m_Violation.m_BugId;
+					uint32 FirstBugId = mp_Violation.m_BugId;
 					DMibExpectTrue(FirstBugId != 0);
 
-					m_Violation.f_Reset();
+					mp_Violation.f_Reset();
 					DMibCheck(false);
-					uint32 SecondBugId = m_Violation.m_BugId;
+					uint32 SecondBugId = mp_Violation.m_BugId;
 
 					DMibExpect(FirstBugId, ==, SecondBugId);
 				};
@@ -577,11 +577,11 @@ namespace
 					;
 
 					DMibCheck(false);
-					uint32 FirstBugId = m_Violation.m_BugId;
+					uint32 FirstBugId = mp_Violation.m_BugId;
 
-					m_Violation.f_Reset();
+					mp_Violation.f_Reset();
 					DMibCheck(1 == 2);
-					uint32 SecondBugId = m_Violation.m_BugId;
+					uint32 SecondBugId = mp_Violation.m_BugId;
 
 					DMibExpect(FirstBugId, !=, SecondBugId);
 				};

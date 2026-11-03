@@ -43,7 +43,7 @@ namespace NMib::NContract
 #	define DMibSafeCheck(d_Expression, d_Message) \
 		do {if (!expect_analyzer(!!(d_Expression))) {if (NMib::NContract::fg_MibSafeCheck(DMibPFile, DMibPLine, #d_Expression, d_Message)) DMibPDebugBreak;}} while (false)
 #	define DMibFastCheck(d_Expression) \
-		do {if (!expect_analyzer(!!(d_Expression))) {DMibPDebugBreak; ::NMib::NContract::NPrivate::CNoReturn NoReturn; [[maybe_unused]] int x = 0; x = 1; ++x;}} while (false)
+		do {if (!expect_analyzer(!!(d_Expression))) {DMibPDebugBreak; ::NMib::NContract::NPrivate::CNoReturn NoReturn; [[maybe_unused]] int Dummy = 0; Dummy = 1; ++Dummy;}} while (false)
 	bool fg_MibSafeCheck(ch8 const *_pFile, int32 _Line, ch8 const *_pExpression, ch8 const *_pMessage) function_does_not_return_analyzer;
 	bool fg_MibSafeCheckSetThrowsException(bool _bThrowsException);
 #else
