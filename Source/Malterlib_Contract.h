@@ -135,40 +135,13 @@ namespace NMib::NContract
 
 		uint32 f_BugId() const;
 
-		ch8 const *f_GetType() const
-		{
-			return mp_pType;
-		}
-
-		ch8 const *f_GetFile() const
-		{
-			return mp_pFile;
-		}
-
-		int32 f_GetLine() const
-		{
-			return mp_Line;
-		}
-
-		ch8 const *f_GetFunction() const
-		{
-			return mp_pFunction;
-		}
-
-		ch8 const *f_GetVariables() const
-		{
-			return mp_pVariables;
-		}
-
-		ch8 const *f_GetStatement() const
-		{
-			return mp_pStatement;
-		}
-
-		ch8 const *f_GetClassName() const
-		{
-			return mp_pClassName;
-		}
+		ch8 const *f_GetType() const;
+		ch8 const *f_GetFile() const;
+		int32 f_GetLine() const;
+		ch8 const *f_GetFunction() const;
+		ch8 const *f_GetVariables() const;
+		ch8 const *f_GetStatement() const;
+		ch8 const *f_GetClassName() const;
 
 	private:
 		ch8 const *mp_pType;
@@ -189,23 +162,13 @@ namespace NMib::NContract
 
 	struct CContractBreakpointEnablerScope
 	{
-		CContractBreakpointEnablerScope()
-			: mp_fOldLogger(fg_SetContractLogger(NFunction::TCFunction<void (CContractViolation const &_ContractViolation)>(&CContractBreakpointEnablerScope::fsp_DoDebugBreak)))
-		{
-		}
-
-		~CContractBreakpointEnablerScope()
-		{
-			fg_SetContractLogger(mp_fOldLogger);
-		}
+		CContractBreakpointEnablerScope();
+		~CContractBreakpointEnablerScope();
 
 	private:
 		DMibThreadLocalScopeDebugMember;
 
-		static void fsp_DoDebugBreak(CContractViolation const &_ContractViolation)
-		{
-			DMibPDebugBreak;
-		}
+		static void fsp_DoDebugBreak(CContractViolation const &_ContractViolation);
 
 		NFunction::TCFunction<void (CContractViolation const &_ContractViolation)> mp_fOldLogger; // logger we reinstate at destruction
 	};
@@ -221,38 +184,15 @@ namespace NMib::NContract
 
 		void fg_EnableContractsInThisThread(bool _bEnabled);
 		bool fg_ContractsEnabledInThisThread();
-
-		inline_small bool fg_Enabled()
-		{
-			return fg_ContractsEnabledInThisThread();
-		}
+		inline_small bool fg_Enabled();
 
 		struct CContractBase
 		{
-			CContractBase(ch8 const *_pFile, int32 _Line, ch8 const *_pFunction, ch8 const *_pStatement)
-				: mp_pFile(_pFile)
-				, mp_Line(_Line)
-				, mp_pFunction(_pFunction)
-				, mp_pStatement(_pStatement)
-				, mp_Variables()
-			{
-			}
-
-			operator bool () const
-			{
-				return false;
-			}
+			CContractBase(ch8 const *_pFile, int32 _Line, ch8 const *_pFunction, ch8 const *_pStatement);
+			operator bool () const;
 
 			template <typename tf_CVariable>
-			bool f_LogVariable(ch8 const *_pDescription, tf_CVariable const &_Var) const
-			{
-				if (_pDescription[0] == '"')
-					mp_Variables += NStr::CStrNonTracked::CFormat("{\n}    note: '{}'") << _Var;
-				else
-					mp_Variables += NStr::CStrNonTracked::CFormat("{\n}    {} = {}") << _pDescription << _Var;
-
-				return false;
-			}
+			bool f_LogVariable(ch8 const *_pDescription, tf_CVariable const &_Var) const;
 
 		protected:
 			ch8 const *mp_pFile;
@@ -264,83 +204,39 @@ namespace NMib::NContract
 
 		struct CContractRequire : CContractBase
 		{
-			CContractRequire(ch8 const *_pFile, int32 _Line, ch8 const *_pFunction, ch8 const *_pStatement) function_does_not_return_analyzer
-				: CContractBase(_pFile, _Line, _pFunction, _pStatement)
-			{
-			}
-
-			bool operator = (bool _bVariablesLogged) const
-			{
-				if (fg_HandleRequireViolation(mp_pFile, mp_Line, mp_pFunction, mp_Variables.f_GetStr(), mp_pStatement, DMibContractConfigure_Callstack))
-					return true;
-				return false;
-			}
+			CContractRequire(ch8 const *_pFile, int32 _Line, ch8 const *_pFunction, ch8 const *_pStatement) function_does_not_return_analyzer;
+			bool operator = (bool _bVariablesLogged) const;
 		};
 
 		struct CContractEnsure : CContractBase
 		{
-			CContractEnsure(ch8 const *_pFile, int32 _Line, ch8 const *_pFunction, ch8 const *_pStatement) function_does_not_return_analyzer
-				: CContractBase(_pFile, _Line, _pFunction, _pStatement)
-			{
-			}
-
-			bool operator = (bool _bVariablesLogged) const
-			{
-				if (fg_HandleEnsureViolation(mp_pFile, mp_Line, mp_pFunction, mp_Variables.f_GetStr(), mp_pStatement, DMibContractConfigure_Callstack))
-					return true;
-				return false;
-			}
+			CContractEnsure(ch8 const *_pFile, int32 _Line, ch8 const *_pFunction, ch8 const *_pStatement) function_does_not_return_analyzer;
+			bool operator = (bool _bVariablesLogged) const;
 		};
 
 		struct CContractCheck : CContractBase
 		{
-			CContractCheck(ch8 const *_pFile, int32 _Line, ch8 const *_pFunction, ch8 const *_pStatement) function_does_not_return_analyzer
-				: CContractBase(_pFile, _Line, _pFunction, _pStatement)
-			{
-			}
-
-			bool operator = (bool _bVariablesLogged) const
-			{
-				if (fg_HandleCheckViolation(mp_pFile, mp_Line, mp_pFunction, mp_Variables.f_GetStr(), mp_pStatement, DMibContractConfigure_Callstack))
-					return true;
-				return false;
-			}
+			CContractCheck(ch8 const *_pFile, int32 _Line, ch8 const *_pFunction, ch8 const *_pStatement) function_does_not_return_analyzer;
+			bool operator = (bool _bVariablesLogged) const;
 		};
 
 		struct CContractNeverGetHere : CContractBase
 		{
-			CContractNeverGetHere(ch8 const *_pFile, int32 _Line, ch8 const *_pFunction) function_does_not_return_analyzer
-				: CContractBase(_pFile, _Line, _pFunction, nullptr)
-			{
-			}
-
-			bool operator = (bool _bVariablesLogged) const
-			{
-				if (fg_HandleNeverGetHereViolation(mp_pFile, mp_Line, mp_pFunction, mp_Variables.f_GetStr(), DMibContractConfigure_Callstack))
-					return true;
-				return false;
-			}
+			CContractNeverGetHere(ch8 const *_pFile, int32 _Line, ch8 const *_pFunction) function_does_not_return_analyzer;
+			bool operator = (bool _bVariablesLogged) const;
 		};
 
 #endif
 		// Helper for signalling that no return value will be created from DMibNeverGetHere
 		struct CDisableReturnValue
 		{
-			CDisableReturnValue()
-			{
-			}
+			CDisableReturnValue();
 
 #ifdef DCompiler_MSVC
 			function_does_not_return
 #endif
-			~CDisableReturnValue()
-			{
-			}
-
-			operator bool () const
-			{
-				return false;
-			}
+			~CDisableReturnValue();
+			operator bool () const;
 		};
 	}
 
@@ -357,37 +253,13 @@ namespace NMib::NContract
 	};
 
 #if defined DMibContract_AnyEnabled
-	inline CEnableContracts::CEnableContracts(bool _bEnable)
-		: mp_bOldEnabled(NPrivate::fg_ContractsEnabledInThisThread())
-	{
-		NPrivate::fg_EnableContractsInThisThread(_bEnable);
-	}
-
-	inline CEnableContracts::~CEnableContracts()
-	{
-		NPrivate::fg_EnableContractsInThisThread(mp_bOldEnabled);
-	}
-
 	NStr::CStrNonTracked fg_GetLastContractMessage();
-#else
-	inline CEnableContracts::CEnableContracts(bool _bEnable)
-		: mp_bOldEnabled(false)
-	{
-	}
-
-	inline CEnableContracts::~CEnableContracts()
-	{
-	}
 #endif
 
 #ifdef DMibContract_AnyEnabled
 	struct CContractBreak
 	{
-		inline_always void operator = (bool _bBreak)
-		{
-			if (_bBreak)
-				DMibPDebugBreak;
-		}
+		inline_always void operator = (bool _bBreak);
 	};
 
 	extern CContractBreak g_ContractBreak;
@@ -566,3 +438,4 @@ using namespace NMib::NContract;
 #	define DBreakEnablerScope DMibContractBreakEnablerScope
 #endif
 
+#include "Malterlib_Contract.hpp"

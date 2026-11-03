@@ -221,6 +221,41 @@ namespace NMib::NContract
 		return (NMib::NStr::CStrNonTracked(mp_pStatement) + NMib::NStr::CStrNonTracked(mp_pFunction)).f_Hash();
 	}
 
+	ch8 const *CContractViolation::f_GetType() const
+	{
+		return mp_pType;
+	}
+
+	ch8 const *CContractViolation::f_GetFile() const
+	{
+		return mp_pFile;
+	}
+
+	int32 CContractViolation::f_GetLine() const
+	{
+		return mp_Line;
+	}
+
+	ch8 const *CContractViolation::f_GetFunction() const
+	{
+		return mp_pFunction;
+	}
+
+	ch8 const *CContractViolation::f_GetVariables() const
+	{
+		return mp_pVariables;
+	}
+
+	ch8 const *CContractViolation::f_GetStatement() const
+	{
+		return mp_pStatement;
+	}
+
+	ch8 const *CContractViolation::f_GetClassName() const
+	{
+		return mp_pClassName;
+	}
+
 	namespace
 	{
 		struct CContractLoggerThreadLocal
@@ -345,6 +380,21 @@ namespace NMib::NContract
 	}
 #endif
 
+	CContractBreakpointEnablerScope::CContractBreakpointEnablerScope()
+		: mp_fOldLogger(fg_SetContractLogger(NFunction::TCFunction<void (CContractViolation const &_ContractViolation)>(&CContractBreakpointEnablerScope::fsp_DoDebugBreak)))
+	{
+	}
+
+	CContractBreakpointEnablerScope::~CContractBreakpointEnablerScope()
+	{
+		fg_SetContractLogger(mp_fOldLogger);
+	}
+
+	void CContractBreakpointEnablerScope::fsp_DoDebugBreak(CContractViolation const &_ContractViolation)
+	{
+		DMibPDebugBreak;
+	}
+
 	namespace NPrivate
 	{
 #ifdef DMibContractConfigure_RequireEnabled
@@ -403,5 +453,112 @@ namespace NMib::NContract
 			return fg_FailContract(_pFile, _Line, "DMibNeverGetHere", 0, &String);
 		}
 #endif
+
+#if defined DMibContract_AnyEnabled
+		CContractBase::CContractBase(ch8 const *_pFile, int32 _Line, ch8 const *_pFunction, ch8 const *_pStatement)
+			: mp_pFile(_pFile)
+			, mp_Line(_Line)
+			, mp_pFunction(_pFunction)
+			, mp_pStatement(_pStatement)
+			, mp_Variables()
+		{
+		}
+
+		CContractBase::operator bool () const
+		{
+			return false;
+		}
+#endif
+
+#ifdef DMibContractConfigure_RequireEnabled
+		CContractRequire::CContractRequire(ch8 const *_pFile, int32 _Line, ch8 const *_pFunction, ch8 const *_pStatement)
+			: CContractBase(_pFile, _Line, _pFunction, _pStatement)
+		{
+		}
+
+		bool CContractRequire::operator = (bool _bVariablesLogged) const
+		{
+			if (fg_HandleRequireViolation(mp_pFile, mp_Line, mp_pFunction, mp_Variables.f_GetStr(), mp_pStatement, DMibContractConfigure_Callstack))
+				return true;
+			return false;
+		}
+#endif
+
+#ifdef DMibContractConfigure_EnsureEnabled
+		CContractEnsure::CContractEnsure(ch8 const *_pFile, int32 _Line, ch8 const *_pFunction, ch8 const *_pStatement)
+			: CContractBase(_pFile, _Line, _pFunction, _pStatement)
+		{
+		}
+
+		bool CContractEnsure::operator = (bool _bVariablesLogged) const
+		{
+			if (fg_HandleEnsureViolation(mp_pFile, mp_Line, mp_pFunction, mp_Variables.f_GetStr(), mp_pStatement, DMibContractConfigure_Callstack))
+				return true;
+			return false;
+		}
+#endif
+
+#ifdef DMibContractConfigure_CheckEnabled
+		CContractCheck::CContractCheck(ch8 const *_pFile, int32 _Line, ch8 const *_pFunction, ch8 const *_pStatement)
+			: CContractBase(_pFile, _Line, _pFunction, _pStatement)
+		{
+		}
+
+		bool CContractCheck::operator = (bool _bVariablesLogged) const
+		{
+			if (fg_HandleCheckViolation(mp_pFile, mp_Line, mp_pFunction, mp_Variables.f_GetStr(), mp_pStatement, DMibContractConfigure_Callstack))
+				return true;
+			return false;
+		}
+#endif
+
+#ifdef DMibContractConfigure_NeverGetHereEnabled
+		CContractNeverGetHere::CContractNeverGetHere(ch8 const *_pFile, int32 _Line, ch8 const *_pFunction)
+			: CContractBase(_pFile, _Line, _pFunction, nullptr)
+		{
+		}
+
+		bool CContractNeverGetHere::operator = (bool _bVariablesLogged) const
+		{
+			if (fg_HandleNeverGetHereViolation(mp_pFile, mp_Line, mp_pFunction, mp_Variables.f_GetStr(), DMibContractConfigure_Callstack))
+				return true;
+			return false;
+		}
+#endif
+
+		CDisableReturnValue::CDisableReturnValue()
+		{
+		}
+
+		CDisableReturnValue::~CDisableReturnValue()
+		{
+		}
+
+		CDisableReturnValue::operator bool () const
+		{
+			return false;
+		}
 	}
+
+#if defined DMibContract_AnyEnabled
+	CEnableContracts::CEnableContracts(bool _bEnable)
+		: mp_bOldEnabled(NPrivate::fg_ContractsEnabledInThisThread())
+	{
+		NPrivate::fg_EnableContractsInThisThread(_bEnable);
+	}
+
+	CEnableContracts::~CEnableContracts()
+	{
+		NPrivate::fg_EnableContractsInThisThread(mp_bOldEnabled);
+	}
+#else
+	CEnableContracts::CEnableContracts(bool _bEnable)
+		: mp_bOldEnabled(false)
+	{
+	}
+
+	CEnableContracts::~CEnableContracts()
+	{
+	}
+#endif
 }

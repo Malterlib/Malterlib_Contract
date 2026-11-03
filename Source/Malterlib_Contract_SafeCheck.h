@@ -19,18 +19,9 @@ namespace NMib::NContract
 	{
 		struct CNoReturn
 		{
-			constexpr CNoReturn() function_does_not_return_analyzer
-			{
-			}
-
-			constexpr ~CNoReturn()
-			{
-			}
-
-			constexpr operator bool () const
-			{
-				return false;
-			}
+			constexpr CNoReturn() function_does_not_return_analyzer;
+			constexpr ~CNoReturn();
+			constexpr operator bool () const;
 		};
 	}
 
@@ -68,3 +59,5 @@ namespace NMib::NContract
 #ifndef DMibPNoShortCuts
 using namespace NMib::NContract;
 #endif
+
+#include "Malterlib_Contract_SafeCheck.hpp"
