@@ -168,9 +168,9 @@ namespace NMib::NContract
 		constinit NStorage::TCAggregate<NThread::TCThreadLocal<TCAutoClearInt<bool, true>>, 64> g_Enabled = {DAggregateInit};
 		bool g_bGlobalEnabled = true;
 
-		void fg_EnableContractsInThisThread(bool enabled)
+		void fg_EnableContractsInThisThread(bool _bEnabled)
 		{
-			*(*g_Enabled) = enabled;
+			*(*g_Enabled) = _bEnabled;
 		}
 
 		bool fg_ContractsEnabledInThisThread()
@@ -233,7 +233,7 @@ namespace NMib::NContract
 			}
 
 			mutable NThread::CMutual m_Lock;
-			NFunction::TCFunction<void (CContractViolation const &)> m_fOnContractViolation;
+			NFunction::TCFunction<void (CContractViolation const &_ContractViolation)> m_fOnContractViolation;
 		};
 
 		constinit NStorage::TCAggregate<NMib::NThread::TCThreadLocal<CContractLoggerThreadLocal, NMib::NMemory::CAllocator_Heap, NMib::NThread::EThreadLocalFlag_Inherit>> g_ContratLogger =
@@ -243,7 +243,8 @@ namespace NMib::NContract
 		;
 	}
 
-	NFunction::TCFunction<void (CContractViolation const &)> fg_SetContractLogger(NFunction::TCFunction<void (CContractViolation const &)> const &_ContractLogger)
+	auto fg_SetContractLogger(NFunction::TCFunction<void (CContractViolation const &_ContractViolation)> const &_ContractLogger)
+		-> NFunction::TCFunction<void (CContractViolation const &_ContractViolation)>
 	{
 		auto &TreadLocal = **g_ContratLogger;
 		auto OldLogger = TreadLocal.m_fOnContractViolation;
@@ -254,7 +255,7 @@ namespace NMib::NContract
 	}
 
 #if defined DMibContract_AnyEnabled
-	NFunction::TCFunction<void (CContractViolation const &)> fg_SetContractLoggerThrowExceptions()
+	NFunction::TCFunction<void (CContractViolation const &_ContractViolation)> fg_SetContractLoggerThrowExceptions()
 	{
 		using namespace NMib::NStr;
 		return fg_SetContractLogger

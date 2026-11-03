@@ -42,7 +42,7 @@ namespace
 
 		CViolationRecord m_Violation;
 
-		NMib::NFunction::TCFunction<void (CContractViolation const &)> fp_InstallRecordingLogger()
+		NMib::NFunction::TCFunction<void (CContractViolation const &_ContractViolation)> fp_InstallRecordingLogger()
 		{
 			m_Violation.f_Reset();
 			return fg_SetContractLogger
@@ -594,7 +594,7 @@ namespace
 					bool bCustomCalled = false;
 					auto fOldLogger = fg_SetContractLogger
 						(
-							[&bCustomCalled](CContractViolation const &)
+							[&bCustomCalled](CContractViolation const &_ContractViolation)
 							{
 								bCustomCalled = true;
 							}
@@ -649,7 +649,7 @@ namespace
 
 					auto fOriginal = fg_SetContractLogger
 						(
-							[&bFirstCalled](CContractViolation const &)
+							[&bFirstCalled](CContractViolation const &_ContractViolation)
 							{
 								bFirstCalled = true;
 							}
@@ -663,7 +663,7 @@ namespace
 
 					auto fFirst = fg_SetContractLogger
 						(
-							[&bSecondCalled](CContractViolation const &)
+							[&bSecondCalled](CContractViolation const &_ContractViolation)
 							{
 								bSecondCalled = true;
 							}

@@ -180,15 +180,17 @@ namespace NMib::NContract
 		int32 mp_Line;
 	};
 
-	NFunction::TCFunction<void (CContractViolation const &)> fg_SetContractLogger(NFunction::TCFunction<void (CContractViolation const &)> const &_Logger);
+	auto fg_SetContractLogger(NFunction::TCFunction<void (CContractViolation const &_ContractViolation)> const &_Logger)
+		-> NFunction::TCFunction<void (CContractViolation const &_ContractViolation)>
+	;
 #if defined DMibContract_AnyEnabled
-	NFunction::TCFunction<void (CContractViolation const &)> fg_SetContractLoggerThrowExceptions();
+	NFunction::TCFunction<void (CContractViolation const &_ContractViolation)> fg_SetContractLoggerThrowExceptions();
 #endif
 
 	struct CContractBreakpointEnablerScope
 	{
 		CContractBreakpointEnablerScope()
-			: mp_fOldLogger(fg_SetContractLogger(NFunction::TCFunction<void (CContractViolation const &)>(&CContractBreakpointEnablerScope::fsp_DoDebugBreak)))
+			: mp_fOldLogger(fg_SetContractLogger(NFunction::TCFunction<void (CContractViolation const &_ContractViolation)>(&CContractBreakpointEnablerScope::fsp_DoDebugBreak)))
 		{
 		}
 
@@ -200,12 +202,12 @@ namespace NMib::NContract
 	private:
 		DMibThreadLocalScopeDebugMember;
 
-		static void fsp_DoDebugBreak(CContractViolation const &)
+		static void fsp_DoDebugBreak(CContractViolation const &_ContractViolation)
 		{
 			DMibPDebugBreak;
 		}
 
-		NFunction::TCFunction<void (CContractViolation const &)> mp_fOldLogger; // logger we reinstate at destruction
+		NFunction::TCFunction<void (CContractViolation const &_ContractViolation)> mp_fOldLogger; // logger we reinstate at destruction
 	};
 
 	namespace NPrivate
@@ -217,7 +219,7 @@ namespace NMib::NContract
 		bool fg_HandleCheckViolation(ch8 const *_pFile, int32 _Line, ch8 const *_pFunction, ch8 const *_pVariables, ch8 const *_pStatement, bool _pCallstack);
 		bool fg_HandleNeverGetHereViolation(ch8 const *_pFile, int32 _Line, ch8 const *_pFunction, ch8 const *_pVariables, bool _pCallstack);
 
-		void fg_EnableContractsInThisThread(bool);
+		void fg_EnableContractsInThisThread(bool _bEnabled);
 		bool fg_ContractsEnabledInThisThread();
 
 		inline_small bool fg_Enabled()
@@ -267,7 +269,7 @@ namespace NMib::NContract
 			{
 			}
 
-			bool operator = (bool) const
+			bool operator = (bool _bVariablesLogged) const
 			{
 				if (fg_HandleRequireViolation(mp_pFile, mp_Line, mp_pFunction, mp_Variables.f_GetStr(), mp_pStatement, DMibContractConfigure_Callstack))
 					return true;
@@ -282,7 +284,7 @@ namespace NMib::NContract
 			{
 			}
 
-			bool operator = (bool) const
+			bool operator = (bool _bVariablesLogged) const
 			{
 				if (fg_HandleEnsureViolation(mp_pFile, mp_Line, mp_pFunction, mp_Variables.f_GetStr(), mp_pStatement, DMibContractConfigure_Callstack))
 					return true;
@@ -297,7 +299,7 @@ namespace NMib::NContract
 			{
 			}
 
-			bool operator = (bool) const
+			bool operator = (bool _bVariablesLogged) const
 			{
 				if (fg_HandleCheckViolation(mp_pFile, mp_Line, mp_pFunction, mp_Variables.f_GetStr(), mp_pStatement, DMibContractConfigure_Callstack))
 					return true;
@@ -312,7 +314,7 @@ namespace NMib::NContract
 			{
 			}
 
-			bool operator = (bool) const
+			bool operator = (bool _bVariablesLogged) const
 			{
 				if (fg_HandleNeverGetHereViolation(mp_pFile, mp_Line, mp_pFunction, mp_Variables.f_GetStr(), DMibContractConfigure_Callstack))
 					return true;
@@ -344,12 +346,12 @@ namespace NMib::NContract
 
 	struct CEnableContracts
 	{
-		CEnableContracts(bool);
+		CEnableContracts(bool _bEnable);
 		~CEnableContracts();
 
 	private:
-		CEnableContracts(CEnableContracts const &);
-		CEnableContracts &operator = (CEnableContracts const &);
+		CEnableContracts(CEnableContracts const &_Other);
+		CEnableContracts &operator = (CEnableContracts const &_Other);
 
 		bool mp_bOldEnabled;
 	};
@@ -368,7 +370,7 @@ namespace NMib::NContract
 
 	NStr::CStrNonTracked fg_GetLastContractMessage();
 #else
-	inline CEnableContracts::CEnableContracts(bool enable)
+	inline CEnableContracts::CEnableContracts(bool _bEnable)
 		: mp_bOldEnabled(false)
 	{
 	}
