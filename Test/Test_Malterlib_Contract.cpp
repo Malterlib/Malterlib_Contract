@@ -12,7 +12,7 @@ namespace
 	using namespace NMib::NStr;
 	using namespace NMib::NContract;
 
-	class CContracts_Tests : public NMib::NTest::CTest
+	struct CContracts_Tests : public NMib::NTest::CTest
 	{
 	private:
 #ifdef DMibContract_AnyEnabled
