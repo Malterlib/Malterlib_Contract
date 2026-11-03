@@ -298,11 +298,14 @@ namespace NMib::NContract
 		NMib::NContract::g_ContractBreak = DMibContractHelperRequireExpression_A \
 			= DMibContractHelperRequireExpression_A || DMibContractHelperRequireExpression_B || DMibContractHelperRequireExpression_A
 #else
+// NOLINTBEGIN(malterlib-type-naming): named like the macros that chain the logged expressions, which end on these constants
 enum
 {
 	DMibContractHelperRequireExpression_A
 	, DMibContractHelperRequireExpression_B
 };
+
+// NOLINTEND(malterlib-type-naming)
 
 #	define DMibContractHelperRequireExpression_B(d_Expression) DMibContractHelperRequireExpression_OP(d_Expression, A)
 #	define DMibContractHelperRequireExpression_A(d_Expression) DMibContractHelperRequireExpression_OP(d_Expression, B)
@@ -330,11 +333,14 @@ enum
 		NMib::NContract::g_ContractBreak = DMibContractHelperEnsureExpression_A \
 			= DMibContractHelperEnsureExpression_A || DMibContractHelperEnsureExpression_B || DMibContractHelperEnsureExpression_A
 #else
+// NOLINTBEGIN(malterlib-type-naming): named like the macros that chain the logged expressions, which end on these constants
 enum
 {
 	DMibContractHelperEnsureExpression_A
 	, DMibContractHelperEnsureExpression_B
 };
+
+// NOLINTEND(malterlib-type-naming)
 
 #	define DMibContractHelperEnsureExpression_B(d_Expression) DMibContractHelperEnsureExpression_OP(d_Expression, A)
 #	define DMibContractHelperEnsureExpression_A(d_Expression) DMibContractHelperEnsureExpression_OP(d_Expression, B)
@@ -375,11 +381,14 @@ enum
 		else NMib::NContract::g_ContractBreak = DMibContractHelperCheckExpression_A \
 			= DMibContractHelperCheckExpression_A || DMibContractHelperCheckExpression_B || DMibContractHelperCheckExpression_A // gcc
 #else
+// NOLINTBEGIN(malterlib-type-naming): named like the macros that chain the logged expressions, which end on these constants
 enum
 {
 	DMibContractHelperCheckExpression_A
 	, DMibContractHelperCheckExpression_B
 };
+
+// NOLINTEND(malterlib-type-naming)
 
 #	define DMibContractHelperCheckExpression_B(d_Expression) DMibContractHelperCheckExpression_OP(d_Expression, A)
 #	define DMibContractHelperCheckExpression_A(d_Expression) DMibContractHelperCheckExpression_OP(d_Expression, B)
@@ -408,11 +417,14 @@ enum
 		else NMib::NContract::g_ContractBreak = DMibContractHelperNeverGetHereExpression_A \
 			= DMibContractHelperNeverGetHereExpression_A || DMibContractHelperNeverGetHereExpression_B || DMibContractHelperNeverGetHereExpression_A // gcc
 #else
+// NOLINTBEGIN(malterlib-type-naming): named like the macros that chain the logged expressions, which end on these constants
 enum
 {
 	DMibContractHelperNeverGetHereExpression_A
 	, DMibContractHelperNeverGetHereExpression_B
 };
+
+// NOLINTEND(malterlib-type-naming)
 
 #	define DMibContractHelperNeverGetHereExpression_B(d_Expression) DMibContractHelperNeverGetHereExpression_OP(d_Expression, A)
 #	define DMibContractHelperNeverGetHereExpression_A(d_Expression) DMibContractHelperNeverGetHereExpression_OP(d_Expression, B)
