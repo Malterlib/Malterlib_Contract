@@ -97,8 +97,8 @@ namespace NMib::NContract
 
 			switch (NSys::fg_Debug_ReportContractFailure(_pFile, _Line, NMisc::fg_FunctionPtrToVoidPtr(&fg_MibSafeCheck), Message))
 			{
-			case EDebugContractFailureAction_NotHandled:
-			case EDebugContractFailureAction_Break:
+			case EDebugCheckFailureAction_NotHandled:
+			case EDebugCheckFailureAction_Break:
 				{
 					NStr::CStrNonTracked Message;
 					if (*_pMessage)
@@ -114,12 +114,12 @@ namespace NMib::NContract
 					return true;
 				}
 				break;
-			case EDebugContractFailureAction_Abort:
+			case EDebugCheckFailureAction_Abort:
 				{
 					NSys::fg_System_ExitProcess(211);
 				}
 				break;
-			case EDebugContractFailureAction_Continue:
+			case EDebugCheckFailureAction_Continue:
 				{
 				}
 				break;

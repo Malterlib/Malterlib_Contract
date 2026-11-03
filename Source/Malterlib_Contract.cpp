@@ -94,8 +94,8 @@ inline_never bool fg_FailContract(ch8 const *_pFile, int32 _Line, ch8 const *_pC
 
 	switch (NMib::NSys::fg_Debug_ReportContractFailure(_pFile, _Line, NMib::NMisc::fg_FunctionPtrToVoidPtr(&fg_FailContract), Message))
 	{
-	case NMib::EDebugContractFailureAction_NotHandled:
-	case NMib::EDebugContractFailureAction_Break:
+	case NMib::EDebugCheckFailureAction_NotHandled:
+	case NMib::EDebugCheckFailureAction_Break:
 		{
 			if (_pStatement)
 				DMibTrace(DMibPFileLineFormat " Contract violation: {} ({})" DMibNewLine, _pFile, _Line, _pContractType, _pStatement);
@@ -109,12 +109,12 @@ inline_never bool fg_FailContract(ch8 const *_pFile, int32 _Line, ch8 const *_pC
 			return true;
 		}
 		break;
-	case NMib::EDebugContractFailureAction_Abort:
+	case NMib::EDebugCheckFailureAction_Abort:
 		{
 			NMib::NSys::fg_System_ExitProcess(211);
 		}
 		break;
-	case NMib::EDebugContractFailureAction_Continue:
+	case NMib::EDebugCheckFailureAction_Continue:
 		{
 		}
 		break;
