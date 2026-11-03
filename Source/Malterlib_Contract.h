@@ -180,7 +180,7 @@ namespace NMib::NContract
 		int32 mp_Line;
 	};
 
-	auto fg_SetContractLogger(NFunction::TCFunction<void (CContractViolation const &_ContractViolation)> const &_Logger)
+	auto fg_SetContractLogger(NFunction::TCFunction<void (CContractViolation const &_ContractViolation)> const &_fLogger)
 		-> NFunction::TCFunction<void (CContractViolation const &_ContractViolation)>
 	;
 #if defined DMibContract_AnyEnabled
@@ -214,10 +214,10 @@ namespace NMib::NContract
 	{
 #if defined DMibContract_AnyEnabled
 		// Forward declarations.
-		bool fg_HandleRequireViolation(ch8 const *_pFile, int32 _Line, ch8 const *_pFunction, ch8 const *_pVariables, ch8 const *_pStatement, bool _pCallstack);
-		bool fg_HandleEnsureViolation(ch8 const *_pFile, int32 _Line, ch8 const *_pFunction, ch8 const *_pVariables, ch8 const *_pStatement, bool _pCallstack);
-		bool fg_HandleCheckViolation(ch8 const *_pFile, int32 _Line, ch8 const *_pFunction, ch8 const *_pVariables, ch8 const *_pStatement, bool _pCallstack);
-		bool fg_HandleNeverGetHereViolation(ch8 const *_pFile, int32 _Line, ch8 const *_pFunction, ch8 const *_pVariables, bool _pCallstack);
+		bool fg_HandleRequireViolation(ch8 const *_pFile, int32 _Line, ch8 const *_pFunction, ch8 const *_pVariables, ch8 const *_pStatement, bool _bCallstack);
+		bool fg_HandleEnsureViolation(ch8 const *_pFile, int32 _Line, ch8 const *_pFunction, ch8 const *_pVariables, ch8 const *_pStatement, bool _bCallstack);
+		bool fg_HandleCheckViolation(ch8 const *_pFile, int32 _Line, ch8 const *_pFunction, ch8 const *_pVariables, ch8 const *_pStatement, bool _bCallstack);
+		bool fg_HandleNeverGetHereViolation(ch8 const *_pFile, int32 _Line, ch8 const *_pFunction, ch8 const *_pVariables, bool _bCallstack);
 
 		void fg_EnableContractsInThisThread(bool _bEnabled);
 		bool fg_ContractsEnabledInThisThread();
@@ -244,12 +244,12 @@ namespace NMib::NContract
 			}
 
 			template <typename tf_CVariable>
-			bool f_LogVariable(ch8 const *_Description, tf_CVariable const &_Var) const
+			bool f_LogVariable(ch8 const *_pDescription, tf_CVariable const &_Var) const
 			{
-				if (_Description[0] == '"')
+				if (_pDescription[0] == '"')
 					mp_Variables += NStr::CStrNonTracked::CFormat("{\n}    note: '{}'") << _Var;
 				else
-					mp_Variables += NStr::CStrNonTracked::CFormat("{\n}    {} = {}") << _Description << _Var;
+					mp_Variables += NStr::CStrNonTracked::CFormat("{\n}    {} = {}") << _pDescription << _Var;
 
 				return false;
 			}

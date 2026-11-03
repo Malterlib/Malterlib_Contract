@@ -56,7 +56,7 @@ ch8 g_LastContractFile[1024] = {0};
 ch8 g_LastContractType[1024] = {0};
 ch8 g_LastContractStatement[1024] = {0};
 ch8 g_LastContractDetailed[1024] = {0};
-bool g_LastContractValid = false;
+bool g_bLastContractValid = false;
 
 inline_never bool fg_FailContract(ch8 const *_pFile, int32 _Line, ch8 const *_pContractType, ch8 const *_pStatement, NMib::NStr::CStrNonTracked const *_pDetailed)
 {
@@ -87,9 +87,9 @@ inline_never bool fg_FailContract(ch8 const *_pFile, int32 _Line, ch8 const *_pC
 			NMib::NStr::fg_StrCopy(g_LastContractDetailed, _pDetailed->f_GetStr(), 1024);
 		else
 			g_LastContractDetailed[0] = 0;
-		g_LastContractValid = true;
+		g_bLastContractValid = true;
 		LastContractMessage = NMib::NContract::fg_GetLastContractMessageLockHeld();
-		g_LastContractValid = false;
+		g_bLastContractValid = false;
 	}
 
 	switch (NMib::NSys::fg_Debug_ReportContractFailure(_pFile, _Line, NMib::NMisc::fg_FunctionPtrToVoidPtr(&fg_FailContract), Message))
@@ -104,7 +104,7 @@ inline_never bool fg_FailContract(ch8 const *_pFile, int32 _Line, ch8 const *_pC
 			NMib::NSys::fg_System_ReportContractViolation(LastContractMessage);
 			{
 				DMibLock(g_LastContractLock);
-				g_LastContractValid = true;
+				g_bLastContractValid = true;
 			}
 			return true;
 		}
@@ -137,7 +137,7 @@ namespace NMib::NContract
 
 	NStr::CStrNonTracked fg_GetLastContractMessageLockHeld()
 	{
-		if (g_LastContractValid)
+		if (g_bLastContractValid)
 		{
 			if (*g_LastContractStatement)
 			{
@@ -243,15 +243,15 @@ namespace NMib::NContract
 		;
 	}
 
-	auto fg_SetContractLogger(NFunction::TCFunction<void (CContractViolation const &_ContractViolation)> const &_ContractLogger)
+	auto fg_SetContractLogger(NFunction::TCFunction<void (CContractViolation const &_ContractViolation)> const &_fContractLogger)
 		-> NFunction::TCFunction<void (CContractViolation const &_ContractViolation)>
 	{
 		auto &TreadLocal = **g_ContratLogger;
-		auto OldLogger = TreadLocal.m_fOnContractViolation;
+		auto fOldLogger = TreadLocal.m_fOnContractViolation;
 
 		DMibLock(TreadLocal.m_Lock);
-		TreadLocal.m_fOnContractViolation = _ContractLogger;
-		return OldLogger;
+		TreadLocal.m_fOnContractViolation = _fContractLogger;
+		return fOldLogger;
 	}
 
 #if defined DMibContract_AnyEnabled

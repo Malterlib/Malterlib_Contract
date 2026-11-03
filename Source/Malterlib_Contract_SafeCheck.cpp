@@ -8,7 +8,7 @@ int32 g_LastSafeCheckLine = 0;
 ch8 g_LastSafeCheckFile[1024] = {0};
 ch8 g_LastSafeCheckExpression[1024] = {0};
 ch8 g_LastSafeCheckMessage[1024] = {0};
-bool g_LastSafeCheckValid = false;
+bool g_bLastSafeCheckValid = false;
 
 #endif
 
@@ -44,7 +44,7 @@ namespace NMib::NContract
 
 	NStr::CStrNonTracked fg_GetLastSafeCheckMessageLockHeld()
 	{
-		if (g_LastSafeCheckValid)
+		if (g_bLastSafeCheckValid)
 		{
 			if (*g_LastSafeCheckMessage)
 			{
@@ -90,9 +90,9 @@ namespace NMib::NContract
 				NStr::fg_StrCopy(g_LastSafeCheckFile, _pFile, 1024);
 				NStr::fg_StrCopy(g_LastSafeCheckExpression, _pExpression, 1024);
 				NStr::fg_StrCopy(g_LastSafeCheckMessage, _pMessage, 1024);
-				g_LastSafeCheckValid = true;
+				g_bLastSafeCheckValid = true;
 				LastSafeCheck = fg_GetLastSafeCheckMessageLockHeld();
-				g_LastSafeCheckValid = false;
+				g_bLastSafeCheckValid = false;
 			}
 
 			switch (NSys::fg_Debug_ReportContractFailure(_pFile, _Line, NMisc::fg_FunctionPtrToVoidPtr(&fg_MibSafeCheck), Message))
@@ -109,7 +109,7 @@ namespace NMib::NContract
 					NSys::fg_System_ReportContractViolation(LastSafeCheck);
 					{
 						DMibLock(g_LastSafeCheckLock);
-						g_LastSafeCheckValid = true;
+						g_bLastSafeCheckValid = true;
 					}
 					return true;
 				}
