@@ -21,13 +21,15 @@ namespace NMib::NContract
 		struct CSafeCheckThrowsExcetionThreadLocal
 		{
 			CSafeCheckThrowsExcetionThreadLocal() = default;
-			CSafeCheckThrowsExcetionThreadLocal(CSafeCheckThrowsExcetionThreadLocal const &_Other)
-				: m_bThrowsException(_Other.m_bThrowsException.f_Load())
-			{
-			}
+			CSafeCheckThrowsExcetionThreadLocal(CSafeCheckThrowsExcetionThreadLocal const &_Other);
 
 			NAtomic::TCAtomic<bool> m_bThrowsException;
 		};
+
+		CSafeCheckThrowsExcetionThreadLocal::CSafeCheckThrowsExcetionThreadLocal(CSafeCheckThrowsExcetionThreadLocal const &_Other)
+			: m_bThrowsException(_Other.m_bThrowsException.f_Load())
+		{
+		}
 	}
 
 	constinit NStorage::TCAggregate<NThread::TCThreadLocal<CSafeCheckThrowsExcetionThreadLocal, NMemory::CAllocator_NonTrackedHeap, NThread::EThreadLocalFlag_Inherit>, 64>
