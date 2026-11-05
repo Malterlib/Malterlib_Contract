@@ -261,15 +261,17 @@ namespace NMib::NContract
 		struct CContractLoggerThreadLocal
 		{
 			CContractLoggerThreadLocal() = default;
-			CContractLoggerThreadLocal(CContractLoggerThreadLocal const &_Other)
-			{
-				DMibLock(_Other.m_Lock);
-				m_fOnContractViolation = _Other.m_fOnContractViolation;
-			}
+			CContractLoggerThreadLocal(CContractLoggerThreadLocal const &_Other);
 
 			mutable NThread::CMutual m_Lock;
 			NFunction::TCFunction<void (CContractViolation const &_ContractViolation)> m_fOnContractViolation;
 		};
+
+		CContractLoggerThreadLocal::CContractLoggerThreadLocal(CContractLoggerThreadLocal const &_Other)
+		{
+			DMibLock(_Other.m_Lock);
+			m_fOnContractViolation = _Other.m_fOnContractViolation;
+		}
 
 		constinit NStorage::TCAggregate<NMib::NThread::TCThreadLocal<CContractLoggerThreadLocal, NMib::NMemory::CAllocator_Heap, NMib::NThread::EThreadLocalFlag_Inherit>> g_ContratLogger =
 			{
